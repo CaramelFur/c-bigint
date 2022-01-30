@@ -30,19 +30,18 @@ kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr)
     return (kk_varint_t)strtoll(hexstr, NULL, 16);
 
   kk_bigint_t bigint = create_kkbigint_bits(size_bits);
-  kk_bigint_data_array_t dat_arr = KK_BIGINT_GET_DATA_ARRAY(bigint);
+  kk_bigint_byte_array_t dat_arr = KK_BIGINT_GET_BYTE_ARRAY(bigint);
 
   uint8_t nibble = 0;
-  size_t dat_arr_i = 0;
-  size_t i = 0;
-  do
+  uint8_t mask = 0;
+  for (size_t i = 0; i < size_str; i++)
   {
-    nibble = hex2nibble(hexstr[i]); // half a byte
-    dat_arr_i = i / 2 / KK_SMALLINT_SIZE;
+    nibble = hex2nibble(hexstr[size_str - 1 - i]); // half a byte
 
-    dat_arr[dat_arr_i] <<= 4;
-    dat_arr[dat_arr_i] |= nibble;
-  } while (i++ < size_str - 1);
+    // This removes a branch, so branch prediction can do its thing
+    dat_arr[i / 2] |= (uint8_t)(nibble << mask);
+    mask ^= 4;
+  }
 
   free(hexstr);
 
@@ -60,22 +59,24 @@ char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint)
   }
 
   kk_bigint_t bigint = kkvarint_as_kkbigint(varint);
-  kk_bigint_length_t data_length = KK_BIGINT_GET_DATA_LENGTH(bigint);
-  kk_bigint_data_array_t dat_arr = KK_BIGINT_GET_DATA_ARRAY(bigint);
+  kk_bigint_length_t data_length = KK_BIGINT_GET_BYTE_LENGTH(bigint);
+  kk_bigint_byte_array_t dat_arr = KK_BIGINT_GET_BYTE_ARRAY(bigint);
 
-  size_t strlength = data_length * hexs_for_n_bits(KK_SMALLINT_BITS);
-  char *output = malloc(strlength + 1);
+  size_t size_str = data_length * 2;
+  char *output = malloc(size_str + 1);
   size_t output_offset = 0;
 
-  size_t dat_arr_i = 0;
   uint8_t nibble = 0;
-  for (size_t i = 0; i < strlength; i++)
+  uint8_t mask = 0;
+  for (size_t i = 0; i < size_str; i++)
   {
-    dat_arr_i = i / 2 / KK_SMALLINT_SIZE;
-    nibble = (uint8_t)(dat_arr[dat_arr_i] >> (KK_SMALLINT_BITS - 4)) & 0x0f;
-    dat_arr[dat_arr_i] <<= 4;
+    nibble = dat_arr[data_length - 1 - (i / 2)];
 
-    if (!output_offset && !nibble)
+    // This removes a branch, so branch prediction can do its thing
+    mask ^= 4;
+    nibble >>= mask;
+
+    if (!output_offset && !(nibble & 0x0F))
       continue;
 
     output[output_offset++] = nibble2hex(nibble);
@@ -96,8 +97,6 @@ char *create_decstr_from_borrowed_kkvarint(kk_varint_t varint)
     sprintf(output, "%ld", varint);
     return output;
   }
-
-  
 
   kk_bigint_t bigint = kkvarint_as_kkbigint(varint);
   kk_bigint_length_t data_length = KK_BIGINT_GET_DATA_LENGTH(bigint);

@@ -63,11 +63,14 @@ typedef kk_varint_t kk_smallint_t;
 typedef void *kk_bigint_t;
 typedef size_t kk_bigint_length_t;
 typedef kk_smallint_t *kk_bigint_data_array_t;
+typedef uint8_t *kk_bigint_byte_array_t;
 
 // Define functions
 
 #define KK_BIGINT_GET_DATA_LENGTH(bigint) (*(kk_bigint_length_t *)(bigint))
 #define KK_BIGINT_GET_DATA_ARRAY(bigint) ((kk_bigint_data_array_t)((uint8_t *)bigint + sizeof(kk_bigint_length_t)))
+#define KK_BIGINT_GET_BYTE_LENGTH(bigint) (KK_BIGINT_GET_DATA_LENGTH(bigint) * KK_SMALLINT_SIZE)
+#define KK_BIGINT_GET_BYTE_ARRAY(bigint) ((kk_bigint_byte_array_t)((uint8_t *)bigint + sizeof(kk_bigint_length_t)))
 
 #define KK_VARINT_IS_BIGINT(varint) ((varint)&KK_VARINT_LARGE_BIT)
 #define KK_VARINT_IS_SMALLINT(varint) (!KK_VARINT_IS_BIGINT(varint))
