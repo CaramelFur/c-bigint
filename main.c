@@ -3,21 +3,23 @@
 
 int main()
 {
-  char *ok = malloc(32 * 1024 + 1);
-  for(int i = 0; i < 1024; i++)
-    memcpy(ok + i * 32, "0123456789abcdef0123456789abcdef", 32);
+  // char*start = "0123456789abcdeffedcba98765432100123456789abcdeffedcba987654321";
 
-  kk_varint_t varint;
+  // char *ok = malloc(128);
+  // memcpy(ok, start, strlen(start));
 
-  for (int i = 0; i < 100000; i++)
-  {
-    varint = create_kkvarint_from_borrowed_hexstr(ok);
-    //print_kkbigint_internal(kkvarint_as_kkbigint(varint));
-    ok = create_hexstr_from_borrowed_kkvarint(varint);
-  }
+  // kk_varint_t varint;
 
-  printf("%s\n", ok);
+  // for (int i = 0; i < 100000000; i++)
+  // {
+  //   varint = create_kkvarint_from_borrowed_hexstr(ok);
+  //   // print_kkbigint_internal(kkvarint_as_kkbigint(varint));
+  //   ok = create_hexstr_from_borrowed_kkvarint(varint);
+  // }
 
+  // printf("%s\n", ok);
+
+  
 
   return 0;
 }

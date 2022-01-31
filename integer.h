@@ -142,6 +142,8 @@ kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr);
 
 char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint);
 
+kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint(kk_varint_t varint_a, kk_varint_t varint_b);
+
 // Util functions --------------------------------------------
 
 void print_kkbigint_internal(kk_bigint_t bigint);
