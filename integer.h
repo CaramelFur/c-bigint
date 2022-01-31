@@ -13,6 +13,31 @@
 #define KK_INT_TEST_ON_CAST
 // #define KK_INT_CONVERT_ON_CAST
 
+// Info ------------------------------------------------------
+
+/*
+  BIGINT -> pointer to {
+    length: size_t
+    data: smallint[]
+  }
+
+  SMALLINT -> normal int of pointer size
+
+  VARINT -> int of pointer size
+    but bit 61 instead of 63 is used for sign
+        bit 62 is used to indicate if it is a bigint
+        bit 63 is kept empty to prevent overflows
+        (This makes some checking faster)
+
+
+  If VARINT is a bigint, the lower 62 bits are shifted to the highest 62.
+  It now represent the BIGINT pointer.
+  For this to work every bigint data must be 4*n aligned
+
+  If VARINT is a smallint, bit 63 and 62 are replaced with the value of bit 61
+  It now represent a normal integer
+*/
+
 // -----------------------------------------------------------
 
 #ifdef KK_INT_CONVERT_ON_CAST
@@ -46,19 +71,24 @@ typedef uint16_t kk_varint_data_t;
 
 typedef kk_varint_t kk_smallint_t;
 
+#define _KK_SMALLINT_BITS_RESERVED 2
+#define _KK_SMALLINT_BITS_ALIGNMENT 4 // 2^_KK_SMALLINT_BITS_RESERVED
+
 #define KK_SMALLINT_SIZE KK_VARINT_SIZE
 #define KK_SMALLINT_BITS KK_VARINT_BITS
-#define KK_SMALLINT_BITS_DATA (KK_VARINT_BITS - 1)
-#define KK_SMALLINT_MAX (KK_VARINT_MAX >> 1)
+#define KK_SMALLINT_BITS_DATA (KK_VARINT_BITS - _KK_SMALLINT_BITS_RESERVED)
+#define KK_SMALLINT_MAX (KK_VARINT_MAX >> _KK_SMALLINT_BITS_RESERVED)
 #define KK_SMALLINT_MIN (-KK_SMALLINT_MAX - 1)
 
 #define KK_VARINT_BIT_LSBF(bit) ((kk_varint_t)1 << (bit))
 #define KK_VARINT_BIT_MSBF(bit) ((kk_varint_t)1 << (KK_VARINT_BITS - (bit)-1))
-#define KK_VARINT_LARGE_BIT KK_VARINT_BIT_MSBF(0)
-#define KK_VARINT_SIGN_BIT KK_VARINT_BIT_MSBF(1)
-#define KK_VARINT_DATA_MASK (~KK_VARINT_LARGE_BIT)
+#define KK_VARINT_OVERFLOW_BIT KK_VARINT_BIT_MSBF(0)
+#define KK_VARINT_LARGE_BIT KK_VARINT_BIT_MSBF(1)
+#define KK_VARINT_SIGN_BIT KK_VARINT_BIT_MSBF(2)
+#define KK_VARINT_META_MASK (KK_VARINT_OVERFLOW_BIT + KK_VARINT_LARGE_BIT)
+#define KK_VARINT_DATA_MASK (~KK_VARINT_META_MASK)
 
-#define KK_SMALLINT_SIGN_BIT KK_VARINT_LARGE_BIT
+#define KK_SMALLINT_SIGN_BIT KK_VARINT_BIT_MSBF(0)
 
 typedef void *kk_bigint_t;
 typedef size_t kk_bigint_length_t;
@@ -74,63 +104,20 @@ typedef uint8_t *kk_bigint_byte_array_t;
 
 #define KK_VARINT_IS_BIGINT(varint) ((varint)&KK_VARINT_LARGE_BIT)
 #define KK_VARINT_IS_SMALLINT(varint) (!KK_VARINT_IS_BIGINT(varint))
+#define KK_SMALLINT_HAS_OVERFLOWED(varint) ((varint) & (KK_VARINT_LARGE_BIT + KK_VARINT_OVERFLOW_BIT))
+#define KK_SMALLINT_NOT_OVERFLOWED(varint) (!KK_SMALLINT_HAS_OVERFLOWED(varint))
 #define KK_SMALLINT_IS_VALID(smallint) ((smallint) <= KK_SMALLINT_MAX && (smallint) >= KK_SMALLINT_MIN)
-#define KK_BIGINT_IS_VALID(bigint) (((kk_varint_t)bigint & 1) != 0)
+#define KK_BIGINT_IS_VALID(bigint) (((kk_varint_data_t)bigint & 0x3) != 0)
 
 // Inline Functions ------------------------------------------
 
-static inline kk_smallint_t kkvarint_as_kksmallint(kk_varint_t kkint)
-{
-#ifdef KK_INT_TEST_ON_CAST
-  if (KK_VARINT_IS_BIGINT(kkint))
-    assert(0 && "Trying to cast a bigint to a smallint.");
-#endif
+extern kk_smallint_t kkvarint_as_kksmallint(kk_varint_t kkint);
+extern kk_varint_t kksmallint_as_kkvarint(kk_smallint_t kksmallint);
+extern kk_bigint_t kkvarint_as_kkbigint(kk_varint_t kkint);
+extern kk_varint_t kkbigint_as_kkvarint(kk_bigint_t kkbigint);
 
-  if (kkint & KK_VARINT_SIGN_BIT)
-    return kkint | KK_SMALLINT_SIGN_BIT;
-  return kkint;
-}
-
-static inline kk_varint_t kksmallint_as_kkvarint(kk_smallint_t kksmallint)
-{
-#ifdef KK_INT_TEST_ON_CAST
-  if (KK_SMALLINT_IS_VALID(kksmallint))
-    assert(0 && "Trying to cast a bigint to a smallint.");
-#endif
-
-  return kksmallint & KK_VARINT_DATA_MASK;
-}
-
-static inline kk_bigint_t kkvarint_as_kkbigint(kk_varint_t kkint)
-{
-#ifdef KK_INT_TEST_ON_CAST
-  if (KK_VARINT_IS_SMALLINT(kkint))
-    assert(0 && "Trying to cast a smallint to a bigint.");
-#endif
-
-  return (kk_bigint_t)(kkint << 1);
-}
-
-static inline kk_varint_t kkbigint_as_kkvarint(kk_bigint_t kkbigint)
-{
-#ifdef KK_INT_TEST_ON_CAST
-  if (KK_BIGINT_IS_VALID(kkbigint))
-    assert(0 && "Trying to cast a smallint to a bigint.");
-#endif
-
-  return (kk_varint_t)kkbigint >> 1 | KK_VARINT_LARGE_BIT;
-}
-
-static inline void free_kkvarint(kk_varint_t varint)
-{
-  if (KK_VARINT_IS_BIGINT(varint))
-    free(kkvarint_as_kkbigint(varint));
-}
-
-static inline void free_kkbigint(kk_bigint_t bigint)
-{
-  free(bigint);
-}
+extern void free_kkvarint(kk_varint_t varint);
+extern void free_kkbigint(kk_bigint_t bigint);
 
 // Functions -------------------------------------------------
 
@@ -142,7 +129,8 @@ kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr);
 
 char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint);
 
-kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint(kk_varint_t varint_a, kk_varint_t varint_b);
+extern kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint(kk_varint_t varint_a, kk_varint_t varint_b);
+kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_varint_t varint_a, kk_varint_t varint_b);
 
 // Util functions --------------------------------------------
 
