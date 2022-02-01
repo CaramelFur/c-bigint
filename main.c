@@ -26,6 +26,8 @@ int main()
 
   // printf("%s\n", ok);
 
+  // test
+
   // Uses 31 bits
   kk_varint_t a = 0x3fffffffffffffff;
   kk_varint_t b = create_kkvarint_from_borrowed_hexstr(malloc_string("1"));
