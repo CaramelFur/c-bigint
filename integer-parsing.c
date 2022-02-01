@@ -88,7 +88,7 @@ char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint)
 
     // This removes a branch, so branch prediction can do its thing
     mask ^= 4;
-    nibble >>= mask;
+    nibble = (uint8_t)(nibble >> mask);
 
     if (!output_offset && !(nibble & 0x0F))
       continue;

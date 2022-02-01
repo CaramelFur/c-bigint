@@ -1,7 +1,8 @@
 #include "integer.h"
 #include "util.h"
 
-inline kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint(kk_varint_t varint_a, kk_varint_t varint_b)
+#ifdef __GET_INLINES
+static inline kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint(kk_varint_t varint_a, kk_varint_t varint_b)
 {
   kk_varint_t result = varint_a + varint_b;
   if (KK_SMALLINT_NOT_OVERFLOWED(result))
@@ -9,7 +10,7 @@ inline kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint(kk_varint_t varint
 
   return add_borrowed_kkvarint_to_borrowed_kkvarint_slow(varint_a, varint_b);
 }
-
+#else
 kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_varint_t varint_a, kk_varint_t varint_b)
 {
   if (KK_VARINT_IS_BIGINT(varint_a | varint_b))
@@ -26,3 +27,4 @@ kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_varint_t varint_a
 
   return 0;
 }
+#endif

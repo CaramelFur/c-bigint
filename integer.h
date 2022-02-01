@@ -129,8 +129,17 @@ kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr);
 
 char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint);
 
-extern kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint(kk_varint_t varint_a, kk_varint_t varint_b);
+
 kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_varint_t varint_a, kk_varint_t varint_b);
+
+// Seperated inlines -----------------------------------------
+
+#ifndef __GET_INLINES
+#define __GET_INLINES
+#include "integer.c"
+#undef __GET_INLINES
+#endif
+
 
 // Util functions --------------------------------------------
 
