@@ -1,3 +1,4 @@
+#include <time.h>
 #include "integer.h"
 #include "util.h"
 
@@ -29,16 +30,50 @@ int main()
   // test
 
   // Uses 31 bits
-  kk_varint_t a = 0x3fffffffffffffff;
-  kk_varint_t b = create_kkvarint_from_borrowed_hexstr(malloc_string("1"));
 
-  // printf("oi\n");
+  #define COUNT 100000000
 
-  kk_varint_t c = add_borrowed_kkvarint_to_borrowed_kkvarint(a, b);
+  kk_varint_t a = 0x2fffffffffffffff;
 
-  char *d = create_hexstr_from_borrowed_kkvarint(c);
+  clock_t begin, end;
 
-  printf("%s\n", d);
+  printf("Start\n");
+  
+  kk_varint_t c[2] = {0, 0};
+
+  begin = clock();
+
+  for(kk_varint_t i = 0; i < COUNT; i++)
+  {
+    c[i%2] += add_borrowed_kkvarint_to_borrowed_kkvarint(a, i*0xfffffffffffff);
+  }
+
+  printf("%lu\n", c[0]);
+
+  end = clock();
+  printf("Add: %f\n", (double)(end - begin) / CLOCKS_PER_SEC);
+
+  c[0] = 0;
+  c[1] = 0;
+
+  printf("Start\n");
+
+  begin = clock();
+
+  for(kk_varint_t i = 0; i < COUNT; i++)
+  {
+    c[i%2] += a + i*0xfffffffffffff;
+  }
+
+  printf("%lu\n", c[0]);
+
+  end = clock();
+
+  printf("Add: %f\n", (double)(end - begin) / CLOCKS_PER_SEC);
+
+  //char *d = create_hexstr_from_borrowed_kkvarint(c);
+
+  //printf("%s\n", d);
 
   // printf("%lx\n", KK_SMALLINT_MAX);
 
