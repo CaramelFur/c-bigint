@@ -32,7 +32,7 @@ int main()
   kk_varint_t a = 0x3fffffffffffffff;
   kk_varint_t b = create_kkvarint_from_borrowed_hexstr(malloc_string("1"));
 
-  //printf("oi\n");
+  // printf("oi\n");
 
   kk_varint_t c = add_borrowed_kkvarint_to_borrowed_kkvarint(a, b);
 
@@ -40,7 +40,7 @@ int main()
 
   printf("%s\n", d);
 
-  //printf("%lx\n", KK_SMALLINT_MAX);
+  // printf("%lx\n", KK_SMALLINT_MAX);
 
   return 0;
 }

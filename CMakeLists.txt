@@ -7,6 +7,8 @@ project (bigint
 
 cmake_minimum_required (VERSION 3.5.1)
 
+set (CMAKE_C_COMPILER clang)
+
 add_definitions("-Wall" "-Wextra" "-Wconversion" "-Wpedantic" "-ggdb" "-O3")
 
 include_directories(${PROJECT_SOURCE_DIR})
