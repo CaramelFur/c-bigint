@@ -33,7 +33,7 @@ int main()
 
   #define COUNT 100000000
 
-  kk_varint_t a = 0x2fffffffffffffff;
+  kk_varint_t a = 1;
 
   clock_t begin, end;
 
@@ -45,7 +45,7 @@ int main()
 
   for(kk_varint_t i = 0; i < COUNT; i++)
   {
-    c[i%2] += add_borrowed_kkvarint_to_borrowed_kkvarint(a, i*0xfffffffffffff);
+    c[i%2] = c[i%2] * add_borrowed_kkvarint_to_borrowed_kkvarint(a, i*0xffffffff) % 10;
   }
 
   printf("%lu\n", c[0]);
@@ -62,7 +62,7 @@ int main()
 
   for(kk_varint_t i = 0; i < COUNT; i++)
   {
-    c[i%2] += a + i*0xfffffffffffff;
+    c[i%2] = c[i%2] * (a + i*0xffffffff) % 10;
   }
 
   printf("%lu\n", c[0]);

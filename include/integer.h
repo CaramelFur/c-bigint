@@ -111,13 +111,7 @@ typedef uint8_t *kk_bigint_byte_array_t;
 
 // Inline Functions ------------------------------------------
 
-extern kk_smallint_t kkvarint_as_kksmallint(kk_varint_t kkint);
-extern kk_varint_t kksmallint_as_kkvarint(kk_smallint_t kksmallint);
-extern kk_bigint_t kkvarint_as_kkbigint(kk_varint_t kkint);
-extern kk_varint_t kkbigint_as_kkvarint(kk_bigint_t kkbigint);
-
-extern void free_kkvarint(kk_varint_t varint);
-extern void free_kkbigint(kk_bigint_t bigint);
+#include "_integer-inlines.h"
 
 // Functions -------------------------------------------------
 
@@ -129,18 +123,10 @@ kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr);
 
 char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint);
 
-
-kk_varint_t add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_varint_t varint_a, kk_varint_t varint_b);
-
-// Seperated inlines -----------------------------------------
-
-#ifndef __GET_INLINES
-#define __GET_INLINES
-#include "integer.c"
-#undef __GET_INLINES
-#endif
-
-
 // Util functions --------------------------------------------
 
 void print_kkbigint_internal(kk_bigint_t bigint);
+
+// Math ------------------------------------------------------
+
+#include "_integer-math.h"
