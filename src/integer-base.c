@@ -1,7 +1,29 @@
 #include "integer.h"
 #include "util.h"
 
-// Base functions
+// Base varint functions
+
+kk_varint_t create_kkvarint(kk_smallint_t value)
+{
+  if (KK_SMALLINT_IS_VALID(value))
+    return kksmallint_as_kkvarint(value);
+
+  kk_bigint_t bigint = create_kkbigint_parts(1);
+  kk_bigint_data_array_t data = KK_BIGINT_GET_DATA_ARRAY(bigint);
+  data[0] = (kk_varint_data_t)value;
+
+  return kkbigint_as_kkvarint(bigint);
+}
+
+kk_varint_t kkvarint_clone(kk_varint_t value)
+{
+  if (KK_VARINT_IS_SMALLINT(value))
+    return value;
+
+  return kkbigint_as_kkvarint(kkbigint_clone(kkvarint_as_kkbigint(value)));
+}
+
+// Base Bigint functions
 
 kk_bigint_t create_kkbigint_parts(size_t parts)
 {
@@ -62,6 +84,14 @@ kk_bigint_t kkbigint_resize(kk_bigint_t bigint, kk_bigint_length_t new_parts)
   return newbigint;
 }
 
+kk_bigint_t kkbigint_clone(kk_bigint_t bigint)
+{
+  size_t bytes = KK_BIGINT_CALC_FULL_SIZE(KK_BIGINT_GET_DATA_LENGTH(bigint));
+  kk_bigint_t newbigint = aligned_alloc(_KK_SMALLINT_BITS_ALIGNMENT, bytes);
+  memcpy(newbigint, bigint, bytes);
+  return newbigint;
+}
+
 // Parsing functions
 
 kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr)
@@ -100,6 +130,54 @@ kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr)
 }
 
 char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint)
+{
+  kk_bigint_t bigint;
+  kk_bigint_length_t data_length;
+  kk_bigint_byte_array_t data_arr;
+
+  if (KK_VARINT_IS_BIGINT(varint))
+  {
+    bigint = kkvarint_as_kkbigint(varint);
+    data_length = KK_BIGINT_GET_DATA_LENGTH_BYTES(bigint);
+    data_arr = KK_BIGINT_GET_DATA_ARRAY_BYTES(bigint);
+  }
+  else
+  {
+    bigint = NULL;
+    data_length = sizeof(kk_smallint_t);
+    data_arr = (kk_bigint_byte_array_t)&varint;
+  }
+
+  size_t size_str = data_length * 2;
+  char *output = malloc(size_str + 1);
+  size_t output_offset = 0;
+
+  output[0] = '0';
+
+  uint8_t nibble = 0;
+  uint8_t mask = 0;
+  for (size_t i = 0; i < size_str; i++)
+  {
+    nibble = data_arr[data_length - 1 - (i / 2)];
+
+    // This removes a branch, so branch prediction can do its thing
+    mask ^= 4;
+    nibble = (uint8_t)(nibble >> mask);
+
+    if (!output_offset && !(nibble & 0x0F))
+      continue;
+
+    output[output_offset++] = nibble2hex(nibble);
+  };
+
+  output[output_offset ? output_offset : 1] = '\0';
+
+  free(bigint);
+
+  return output;
+}
+
+char *create_decstr_from_borrowed_kkvarint(kk_varint_t varint)
 {
   kk_bigint_t bigint;
   kk_bigint_length_t data_length;

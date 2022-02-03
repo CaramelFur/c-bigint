@@ -73,7 +73,7 @@ typedef kk_varint_t kk_smallint_t;
 
 typedef void *kk_bigint_t;
 typedef size_t kk_bigint_length_t;
-typedef kk_smallint_t *kk_bigint_data_array_t;
+typedef kk_varint_data_t *kk_bigint_data_array_t;
 typedef uint8_t *kk_bigint_byte_array_t;
 
 #define _KK_SMALLINT_BITS_RESERVED 2
@@ -96,6 +96,8 @@ typedef uint8_t *kk_bigint_byte_array_t;
 #define KK_SMALLINT_SIGN_BIT KK_VARINT_BIT_MSBF(0)
 
 #define KK_BIGINT_HEADER_SIZE (sizeof(kk_bigint_length_t))
+#define KK_BIGINT_DATA_SIZE (sizeof(kk_varint_data_t))
+#define KK_BIGINT_DATA_BITS (KK_BIGINT_DATA_SIZE * 8)
 
 // Define functions
 
@@ -119,14 +121,19 @@ typedef uint8_t *kk_bigint_byte_array_t;
 
 // Functions -------------------------------------------------
 
+kk_varint_t create_kkvarint(kk_smallint_t value);
+kk_varint_t kkvarint_clone(kk_varint_t value);
+
 kk_bigint_t create_kkbigint_parts(size_t parts);
 kk_bigint_t create_kkbigint_bits(size_t bits);
 kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr);
 char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint);
+char *create_decstr_from_borrowed_kkvarint(kk_varint_t varint);
 
 kk_bigint_length_t kkbigint_get_used_parts(kk_bigint_t bigint);
 kk_bigint_t kkbigint_shrink_to_fit(kk_bigint_t bigint);
 kk_bigint_t kkbigint_resize(kk_bigint_t bigint, kk_bigint_length_t new_parts);
+kk_bigint_t kkbigint_clone(kk_bigint_t bigint);
 
 // Util functions --------------------------------------------
 
