@@ -16,12 +16,18 @@ static inline kk_varint_t add_borrowed_kkbigint_to_kksmallint(kk_bigint_t bigint
 {
   printf("add_borrowed_kkbigint_to_borrowed_kkvarint\n");
   free_kkbigint(bigint_a);
+
+  // ignore unused
+  (void)varint_b;
   return 0;
 }
 
 static inline kk_varint_t add_kksmallint_to_kksmallint(kk_smallint_t varint_a, kk_smallint_t varint_b)
 {
   printf("add_kksmallint_to_kksmallint\n");
+  // ignore unused
+  (void)varint_a;
+  (void)varint_b;
   return 0;
 }
 

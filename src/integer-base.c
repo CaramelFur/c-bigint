@@ -1,9 +1,11 @@
 #include "integer.h"
 #include "util.h"
 
+// Base functions
+
 kk_bigint_t create_kkbigint_parts(size_t parts)
 {
-  size_t bytes = sizeof(parts) + (parts * KK_SMALLINT_SIZE);
+  size_t bytes = KK_BIGINT_CALC_FULL_SIZE(parts);
 
   kk_bigint_t bigint = aligned_alloc(_KK_SMALLINT_BITS_ALIGNMENT, bytes);
   *((kk_bigint_length_t *)bigint) = parts;
@@ -20,6 +22,48 @@ kk_bigint_t create_kkbigint_bits(size_t bits)
   return create_kkbigint_parts(bigint_part_count);
 }
 
+kk_bigint_length_t kkbigint_get_used_parts(kk_bigint_t bigint)
+{
+  kk_bigint_length_t i = KK_BIGINT_GET_DATA_LENGTH(bigint);
+  kk_bigint_data_array_t data = KK_BIGINT_GET_DATA_ARRAY(bigint);
+
+  do
+    i--;
+  while (i > 0 && data[i] == 0);
+
+  return i + 1;
+}
+
+kk_bigint_t kkbigint_shrink_to_fit(kk_bigint_t bigint)
+{
+  kk_bigint_length_t used_parts = kkbigint_get_used_parts(bigint);
+  if (used_parts == KK_BIGINT_GET_DATA_LENGTH(bigint))
+    return bigint;
+
+  // No need to check for alignement, as we are shrinking
+  kk_bigint_t newbigint = realloc(bigint, KK_BIGINT_CALC_FULL_SIZE(used_parts));
+
+  return newbigint;
+}
+
+kk_bigint_t kkbigint_resize(kk_bigint_t bigint, kk_bigint_length_t new_parts)
+{
+  bigint = realloc(bigint, KK_BIGINT_CALC_FULL_SIZE(new_parts));
+  if (KK_BIGINT_IS_VALID(bigint))
+    return bigint;
+
+  // Alignment failed, now we go do it the slow way
+  kk_bigint_length_t length = KK_BIGINT_GET_DATA_LENGTH_BYTES(bigint);
+
+  kk_bigint_t newbigint = create_kkbigint_parts(new_parts);
+  memcpy((uint8_t *)newbigint + KK_BIGINT_HEADER_SIZE, (uint8_t *)bigint + KK_BIGINT_HEADER_SIZE, length);
+
+  free_kkbigint(bigint);
+  return newbigint;
+}
+
+// Parsing functions
+
 kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr)
 {
   size_t size_str = strlen(hexstr);
@@ -31,7 +75,7 @@ kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr)
   {
     kk_bigint_t bigint = create_kkbigint_bits(size_bits);
     varint = kkbigint_as_kkvarint(bigint);
-    dat_arr = KK_BIGINT_GET_BYTE_ARRAY(bigint);
+    dat_arr = KK_BIGINT_GET_DATA_ARRAY_BYTES(bigint);
   }
   else
   {
@@ -64,8 +108,8 @@ char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint)
   if (KK_VARINT_IS_BIGINT(varint))
   {
     bigint = kkvarint_as_kkbigint(varint);
-    data_length = KK_BIGINT_GET_BYTE_LENGTH(bigint);
-    data_arr = KK_BIGINT_GET_BYTE_ARRAY(bigint);
+    data_length = KK_BIGINT_GET_DATA_LENGTH_BYTES(bigint);
+    data_arr = KK_BIGINT_GET_DATA_ARRAY_BYTES(bigint);
   }
   else
   {
