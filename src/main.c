@@ -18,7 +18,7 @@ void test1()
 
   kk_varint_t varint;
 
-  for (int i = 0; i < 100000000; i++)
+  for (int i = 0; i < 10000000; i++)
   {
     varint = create_kkvarint_from_borrowed_hexstr(ok);
     // print_kkbigint_internal(kkvarint_as_kkbigint(varint));
@@ -114,9 +114,15 @@ void test4()
   printf("%s\n%s\n", start_one, ok);
 }
 
+void test5()
+{
+  int64_t test = -1;
+  printf("%lx\n", test);
+}
+
 int main()
 {
-  test4();
+  test5();
 
   return 0;
 }

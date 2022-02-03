@@ -15,19 +15,19 @@ kk_varint_t create_kkvarint(kk_smallint_t value)
   return kkbigint_as_kkvarint(bigint);
 }
 
-kk_varint_t kkvarint_clone(kk_varint_t value)
+kk_varint_t kkvarint_clone(kk_varint_t varint)
 {
-  if (KK_VARINT_IS_SMALLINT(value))
-    return value;
+  if (KK_VARINT_IS_SMALLINT(varint))
+    return varint;
 
-  return kkbigint_as_kkvarint(kkbigint_clone(kkvarint_as_kkbigint(value)));
+  return kkbigint_as_kkvarint(kkbigint_clone(kkvarint_as_kkbigint(varint)));
 }
 
 // Base Bigint functions
 
-kk_bigint_t create_kkbigint_parts(size_t parts)
+kk_bigint_t create_kkbigint_parts(kk_bigint_length_t parts)
 {
-  size_t bytes = KK_BIGINT_CALC_FULL_SIZE(parts);
+  kk_bigint_length_t bytes = KK_BIGINT_CALC_FULL_SIZE(parts);
 
   kk_bigint_t bigint = aligned_alloc(_KK_SMALLINT_BITS_ALIGNMENT, bytes);
   *((kk_bigint_length_t *)bigint) = parts;
@@ -35,9 +35,9 @@ kk_bigint_t create_kkbigint_parts(size_t parts)
   return bigint;
 }
 
-kk_bigint_t create_kkbigint_bits(size_t bits)
+kk_bigint_t create_kkbigint_bits(kk_bigint_length_t bits)
 {
-  size_t bigint_part_count = (bits / KK_VARINT_BITS);
+  kk_bigint_length_t bigint_part_count = (bits / KK_VARINT_BITS);
   if (bits % KK_VARINT_BITS > 0)
     bigint_part_count += 1;
 

@@ -124,8 +124,8 @@ typedef uint8_t *kk_bigint_byte_array_t;
 kk_varint_t create_kkvarint(kk_smallint_t value);
 kk_varint_t kkvarint_clone(kk_varint_t value);
 
-kk_bigint_t create_kkbigint_parts(size_t parts);
-kk_bigint_t create_kkbigint_bits(size_t bits);
+kk_bigint_t create_kkbigint_parts(kk_bigint_length_t parts);
+kk_bigint_t create_kkbigint_bits(kk_bigint_length_t bits);
 kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr);
 char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint);
 char *create_decstr_from_borrowed_kkvarint(kk_varint_t varint);

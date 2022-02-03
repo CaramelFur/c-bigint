@@ -5,8 +5,12 @@
 
 #define CEIL_DIV(a, b) (1 + ((a - 1) / b))
 
+// Constants --------------------------------------------------
+
 extern const char nibble2hex_table[0x100];
 extern const uint8_t hex2nibble_table[0x100];
+
+// Inlines ----------------------------------------------------
 
 static inline uint8_t calculate_bitparts_needs(size_t number, uint8_t bitpartsize)
 {
@@ -49,6 +53,8 @@ static inline size_t decimals_for_n_bits(size_t amount_bits)
 static inline size_t bcds_for_n_bits(size_t amount_bits) {
   return CEIL_DIV(amount_bits + 4 * CEIL_DIV(amount_bits, 3), 8);
 }
+
+// Functions --------------------------------------------------
 
 void print_bits(void *data, size_t length);
 uint8_t hex2byte(char *hexpair);

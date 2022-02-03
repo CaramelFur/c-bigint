@@ -51,6 +51,7 @@ static inline kk_varint_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbig
     carry = a + b + carry;
     data_larger[i] = carry;
 
+    // TODO: improve
     carry = (((a | b) & ~carry) | (a & b)) >> (KK_BIGINT_DATA_BITS - 1);
   }
 
