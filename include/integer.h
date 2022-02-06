@@ -104,14 +104,13 @@ typedef uint8_t kk_half_uint_t;
 #define KK_HALF_UINT_MIN 0
 
 // Varint
-typedef kk_full_int_t kk_vi_t;
+typedef kk_full_uint_t kk_vi_t;
 #define KK_VI_SIZE (sizeof(kk_vi_t))
 #define KK_VI_BITS (KK_VI_SIZE * 8)
 
-#define KK_VI_OVERFLOW_BIT KK_BIT_MSBF(kk_vi_t, 0)
+#define KK_VI_SIGN_BIT KK_BIT_MSBF(kk_vi_t, 0)
 #define KK_VI_LARGE_BIT KK_BIT_MSBF(kk_vi_t, 1)
-#define KK_VI_SIGN_BIT KK_BIT_MSBF(kk_vi_t, 2)
-#define KK_VI_META_MASK (KK_VI_OVERFLOW_BIT + KK_VI_LARGE_BIT)
+#define KK_VI_META_MASK (KK_VI_SIGN_BIT + KK_VI_LARGE_BIT)
 #define KK_VI_DATA_MASK (~KK_VI_META_MASK)
 
 // Bigint
@@ -149,7 +148,7 @@ typedef kk_full_int_t kk_si_t;
 // Define functions
 
 // Varint
-#define KK_VI_IS_BI(varint) ((varint)&KK_VI_LARGE_BIT)
+#define KK_VI_IS_BI(varint) (((varint) & KK_VI_META_MASK) == KK_VI_LARGE_BIT)
 #define KK_VI_IS_SI(varint) (!KK_VI_IS_BI(varint))
 
 // Bigint
@@ -164,11 +163,13 @@ typedef kk_full_int_t kk_si_t;
 
 #define KK_BI_CALC_FULL_SIZE(length) (KK_BI_HEADER_SIZE + (length)*KK_BI_FULLPART_SIZE)
 #define KK_BI_IS_VALID(bigint) (((kk_vi_t)bigint & 0x3) != 0)
+#define KK_BI_NOT_VALID(bigint) (!KK_BI_IS_VALID(bigint))
 
 // Smallint
-#define KK_SI_HAS_OVERFLOWED(varint) ((varint) & (KK_VI_LARGE_BIT + KK_VI_OVERFLOW_BIT))
+#define KK_SI_HAS_OVERFLOWED(varint) (((kk_vi_t)(varint) + KK_VI_LARGE_BIT) & KK_VI_SIGN_BIT)
 #define KK_SI_NOT_OVERFLOWED(varint) (!KK_SI_HAS_OVERFLOWED(varint))
-#define KK_SI_IS_VALID(smallint) ((smallint) <= KK_SI_MAX && (smallint) >= KK_SI_MIN)
+#define KK_SI_IS_VALID(smallint) KK_SI_NOT_OVERFLOWED(smallint)
+#define KK_SI_NOT_VALID(smallint) KK_SI_HAS_OVERFLOWED(smallint)
 
 // Inline Functions ------------------------------------------
 

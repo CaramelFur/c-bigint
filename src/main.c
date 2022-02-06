@@ -105,22 +105,66 @@ void test4()
     kk_vi_t a = kkvarint_clone(accumulator);
     kk_vi_t b = kkvarint_clone(accumulator);
     accumulator = add_borrowed_kkvarint_to_borrowed_kkvarint(a, b);
+    print_bits(&accumulator, sizeof(kk_vi_t));
+    printf("\n");
     char *ok = create_hexstr_from_borrowed_kkvarint(kkvarint_clone(accumulator));
-    printf("%02d %s\n",i, ok);
+    printf("%02d %s\n", i, ok);
   }
 }
 
 void test5()
 {
-  int64_t test = 0xBfffffffffffffff;
-  printf("%ld\n", test);
-  int64_t test2 = 0x4000000000000000;
-  printf("%ld\n", test2);
+  /*
+  // 0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+  // S  BI I  I  I  I  I
+
+  int8_t test_one = 0x00;
+  int8_t test_n_one = 0xFF;
+  int8_t test_two = 0x3F;
+  int8_t test_n_two = 0xC0;
+
+  // plus : 0b00000000 - 0b00111111;
+  // minus: 0b11111111 - 0b11000000;
+
+  // 00 = plus
+  // 11 = minus
+  // 01 = bigint
+  // 10 = overflow
+
+  // a + a = b
+
+  // (b + 0b01000000) & 0b10000000 = BIGINT
+
+  // NO
+  // 00 + 01 = 01
+  // 11 + 01 = 00
+
+  // YES
+  // 01 + 01 = 10
+  // 10 + 01 = 11
+
+  int8_t new_one = 0x72;
+
+  printf("2: %d\n", test_one);
+  print_bits(&test_one, sizeof(test_one));
+  printf("\n-2: %d\n", test_n_one);
+  print_bits(&test_n_one, sizeof(test_n_one));
+  printf("\nINT64_MAX: %d\n", test_two);
+  print_bits(&test_two, sizeof(test_two));
+  printf("\nINT64_MIN: %d\n", test_n_two);
+  print_bits(&test_n_two, sizeof(test_n_two));
+  printf("\n");
+  */
 }
 
 int main()
 {
-  test5();
+  kk_vi_t a = create_kkvarint(0x0F);
+  kk_vi_t b = create_kkvarint(0xf0);
+  kk_vi_t c = add_borrowed_kkvarint_to_borrowed_kkvarint(a, b);
+
+  char* s = create_hexstr_from_borrowed_kkvarint(c);
+  printf("%s\n", s);
 
   return 0;
 }

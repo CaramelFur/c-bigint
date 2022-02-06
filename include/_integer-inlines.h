@@ -9,19 +9,17 @@ static inline kk_si_t kkvarint_as_kksmallint(kk_vi_t kkint)
     assert(0 && "Trying to cast a bigint to a smallint.");
 #endif
 
-  if (kkint & KK_VI_SIGN_BIT)
-    return kkint | KK_VI_META_MASK;
-  return kkint;
+  return (kk_si_t)kkint;
 }
 
 static inline kk_vi_t kksmallint_as_kkvarint(kk_si_t kksmallint)
 {
 #ifdef KK_INT_TEST_ON_CAST
-  if (KK_SI_IS_VALID(kksmallint))
+  if (KK_SI_NOT_VALID(kksmallint))
     assert(0 && "Trying to cast a bigint to a smallint.");
 #endif
 
-  return kksmallint & KK_VI_DATA_MASK;
+  return (kk_vi_t)kksmallint;
 }
 
 static inline kk_bi_t kkvarint_as_kkbigint(kk_vi_t kkint)
@@ -37,7 +35,7 @@ static inline kk_bi_t kkvarint_as_kkbigint(kk_vi_t kkint)
 static inline kk_vi_t kkbigint_as_kkvarint(kk_bi_t kkbigint)
 {
 #ifdef KK_INT_TEST_ON_CAST
-  if (KK_BI_IS_VALID(kkbigint))
+  if (KK_BI_NOT_VALID(kkbigint))
     assert(0 && "Trying to cast a smallint to a bigint.");
 #endif
 
