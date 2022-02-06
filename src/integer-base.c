@@ -8,7 +8,8 @@ kk_vi_t create_kkvarint(kk_si_t value)
   if (KK_SI_IS_VALID(value))
     return kksmallint_as_kkvarint(value);
 
-  kk_bi_t bigint =  create_kkbigint_parts(1);
+  kk_bi_t bigint = create_kkbigint_parts(1);
+
   kk_bi_fullp_arr_t data = KK_BI_GET_FULLP_ARRAY(bigint);
   data[0] = (kk_bi_fullpart_t)value;
 
@@ -95,8 +96,9 @@ kk_bi_t kkbigint_resize(kk_bi_t bigint, kk_bi_length_t new_parts)
 
 kk_bi_t kkbigint_clone(kk_bi_t bigint)
 {
-  size_t bytes = KK_BI_CALC_FULL_SIZE(KK_BI_GET_FULLP_LENGTH(bigint));
+  kk_bi_length_t bytes = KK_BI_CALC_FULL_SIZE(KK_BI_GET_FULLP_LENGTH(bigint));
   kk_bi_t newbigint = aligned_alloc(_KK_SI_BITS_ALIGNMENT, bytes);
+
   memcpy(newbigint, bigint, bytes);
   return newbigint;
 }

@@ -93,36 +93,34 @@ void test3()
 void test4()
 {
   // 64 bit of ones
-  char *start_one = "ffffffffffffffff69";
-  char *start_two = "ffffffffffffffff69";
+  char start_one[] = "1";
 
-  char *ok_one = malloc(128);
-  char *ok_two = malloc(128);
+  char *ok_one = malloc(18);
   memcpy(ok_one, start_one, strlen(start_one));
-  memcpy(ok_two, start_two, strlen(start_two));
 
-  kk_vi_t a = create_kkvarint_from_borrowed_hexstr(ok_one);
-  kk_vi_t b = create_kkvarint_from_borrowed_hexstr(ok_two);
+  kk_vi_t accumulator = create_kkvarint_from_borrowed_hexstr(ok_one);
 
-  for (int i = 0; i < 10000; i++)
+  for (int i = 0; i < 100; i++)
   {
-    kk_vi_t c = kkvarint_clone(b);
-    a = add_borrowed_kkvarint_to_borrowed_kkvarint(a, c);
+    kk_vi_t a = kkvarint_clone(accumulator);
+    kk_vi_t b = kkvarint_clone(accumulator);
+    accumulator = add_borrowed_kkvarint_to_borrowed_kkvarint(a, b);
+    char *ok = create_hexstr_from_borrowed_kkvarint(kkvarint_clone(accumulator));
+    printf("%02d %s\n",i, ok);
   }
-
-  char *ok = create_hexstr_from_borrowed_kkvarint(a);
-  printf("%s\n%s\n", start_one, ok);
 }
 
 void test5()
 {
-  int64_t test = -1;
-  printf("%lx\n", test);
+  int64_t test = 0xBfffffffffffffff;
+  printf("%ld\n", test);
+  int64_t test2 = 0x4000000000000000;
+  printf("%ld\n", test2);
 }
 
 int main()
 {
-  test1();
+  test5();
 
   return 0;
 }
