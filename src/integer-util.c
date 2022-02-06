@@ -3,8 +3,8 @@
 
 void print_kkbigint_internal(kk_bi_t bigint)
 {
-  kk_bi_length_t data_length = KK_BIGINT_GET_DATA_LENGTH(bigint);
-  kk_bi_fullpart_t dat_arr = KK_BIGINT_GET_DATA_ARRAY(bigint);
+  kk_bi_length_t data_length = KK_BI_GET_FULLP_LENGTH(bigint);
+  kk_bi_fullp_arr_t dat_arr = KK_BI_GET_FULLP_ARRAY(bigint);
 
   for (size_t i = 0; i < data_length; i++)
   {

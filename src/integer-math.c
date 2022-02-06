@@ -4,7 +4,8 @@
 // Internal inlines definitions
 
 static inline kk_vi_t add_borrowed_kkbigint_to_borrowed_kkbigint(kk_bi_t bigint_a, kk_bi_t bigint_b);
-static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint(kk_bi_t bigint_larger, kk_bi_t bigint_smaller);
+static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optiona(kk_bi_t bigint_larger, kk_bi_t bigint_smaller);
+static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optionb(kk_bi_t bigint_larger, kk_bi_t bigint_smaller);
 static inline kk_vi_t add_borrowed_kkbigint_to_kksmallint(kk_bi_t bigint_a, kk_si_t varint_b);
 static inline kk_vi_t add_kksmallint_to_kksmallint(kk_si_t varint_a, kk_si_t varint_b);
 
@@ -12,13 +13,13 @@ static inline kk_vi_t add_kksmallint_to_kksmallint(kk_si_t varint_a, kk_si_t var
 
 kk_vi_t _add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_vi_t varint_a, kk_vi_t varint_b)
 {
-  if (KK_VARINT_IS_BIGINT(varint_a & varint_b))
+  if (KK_VI_IS_BI(varint_a & varint_b))
     return add_borrowed_kkbigint_to_borrowed_kkbigint(kkvarint_as_kkbigint(varint_a), kkvarint_as_kkbigint(varint_b));
 
-  if (KK_VARINT_IS_BIGINT(varint_a))
+  if (KK_VI_IS_BI(varint_a))
     return add_borrowed_kkbigint_to_kksmallint(kkvarint_as_kkbigint(varint_a), kkvarint_as_kksmallint(varint_b));
 
-  if (KK_VARINT_IS_BIGINT(varint_b))
+  if (KK_VI_IS_BI(varint_b))
     return add_borrowed_kkbigint_to_kksmallint(kkvarint_as_kkbigint(varint_b), kkvarint_as_kksmallint(varint_a));
 
   return add_kksmallint_to_kksmallint(kkvarint_as_kksmallint(varint_a), kkvarint_as_kksmallint(varint_b));
@@ -29,9 +30,9 @@ kk_vi_t _add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_vi_t varint_a, kk_vi
 static inline kk_vi_t add_borrowed_kkbigint_to_borrowed_kkbigint(kk_bi_t bigint_a, kk_bi_t bigint_b)
 {
   if (KK_BI_GET_FULLP_LENGTH(bigint_a) > KK_BI_GET_FULLP_LENGTH(bigint_b))
-    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint(bigint_a, bigint_b);
+    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optiona(bigint_a, bigint_b);
   else
-    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint(bigint_b, bigint_a);
+    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optiona(bigint_b, bigint_a);
 }
 
 static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optiona(kk_bi_t bigint_larger, kk_bi_t bigint_smaller)

@@ -122,7 +122,7 @@ void test5()
 
 int main()
 {
-  test5();
+  test1();
 
   return 0;
 }

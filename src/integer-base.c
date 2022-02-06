@@ -5,10 +5,10 @@
 
 kk_vi_t create_kkvarint(kk_si_t value)
 {
-  if (KK_SMALLINT_IS_VALID(value))
+  if (KK_SI_IS_VALID(value))
     return kksmallint_as_kkvarint(value);
 
-  kk_vi_t bigint = create_kkbigint_parts(1);
+  kk_bi_t bigint =  create_kkbigint_parts(1);
   kk_bi_fullp_arr_t data = KK_BI_GET_FULLP_ARRAY(bigint);
   data[0] = (kk_bi_fullpart_t)value;
 
@@ -17,7 +17,7 @@ kk_vi_t create_kkvarint(kk_si_t value)
 
 kk_vi_t kkvarint_clone(kk_vi_t varint)
 {
-  if (KK_VARINT_IS_SMALLINT(varint))
+  if (KK_VI_IS_SI(varint))
     return varint;
 
   return kkbigint_as_kkvarint(kkbigint_clone(kkvarint_as_kkbigint(varint)));
@@ -27,7 +27,7 @@ kk_vi_t kkvarint_clone(kk_vi_t varint)
 
 kk_bi_t create_kkbigint_parts(kk_bi_length_t parts)
 {
-  kk_bi_length_t bytes = KK_BIGINT_CALC_FULL_SIZE(parts);
+  kk_bi_length_t bytes = KK_BI_CALC_FULL_SIZE(parts);
 
   kk_bi_t bigint = aligned_alloc(_KK_SI_BITS_ALIGNMENT, bytes);
   *((kk_bi_length_t *)bigint) = parts;
@@ -64,7 +64,7 @@ kk_bi_t kkbigint_shrink_to_fit(kk_bi_t bigint)
 
   // No need to check for alignement, as we are shrinking
   // This SHOULD always keep the same address
-  kk_bi_t newbigint = realloc(bigint, KK_BIGINT_CALC_FULL_SIZE(used_parts));
+  kk_bi_t newbigint = realloc(bigint, KK_BI_CALC_FULL_SIZE(used_parts));
 
   // TODO: Remove eventually
   if (newbigint != bigint)
@@ -79,8 +79,8 @@ kk_bi_t kkbigint_shrink_to_fit(kk_bi_t bigint)
 
 kk_bi_t kkbigint_resize(kk_bi_t bigint, kk_bi_length_t new_parts)
 {
-  bigint = realloc(bigint, KK_BIGINT_CALC_FULL_SIZE(new_parts));
-  if (KK_BIGINT_IS_VALID(bigint))
+  bigint = realloc(bigint, KK_BI_CALC_FULL_SIZE(new_parts));
+  if (KK_BI_IS_VALID(bigint))
     return bigint;
 
   // Alignment failed, now we go do it the slow way
@@ -144,7 +144,7 @@ char *create_hexstr_from_borrowed_kkvarint(kk_vi_t varint)
   kk_bi_length_t data_length;
   kk_bi_bytep_arr_t data_arr;
 
-  if (KK_VARINT_IS_BIGINT(varint))
+  if (KK_VI_IS_BI(varint))
   {
     bigint = kkvarint_as_kkbigint(varint);
     data_length = KK_BI_GET_BYTEP_LENGTH(bigint);
@@ -192,7 +192,7 @@ char *create_decstr_from_borrowed_kkvarint(kk_vi_t varint)
   kk_bi_length_t data_length;
   kk_bi_bytep_arr_t data_arr;
 
-  if (KK_VARINT_IS_BIGINT(varint))
+  if (KK_VI_IS_BI(varint))
   {
     bigint = kkvarint_as_kkbigint(varint);
     data_length = KK_BI_GET_BYTEP_LENGTH(bigint);

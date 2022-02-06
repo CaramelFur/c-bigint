@@ -5,7 +5,7 @@
 static inline kk_si_t kkvarint_as_kksmallint(kk_vi_t kkint)
 {
 #ifdef KK_INT_TEST_ON_CAST
-  if (KK_VARINT_IS_BIGINT(kkint))
+  if (KK_VI_IS_BI(kkint))
     assert(0 && "Trying to cast a bigint to a smallint.");
 #endif
 
@@ -17,7 +17,7 @@ static inline kk_si_t kkvarint_as_kksmallint(kk_vi_t kkint)
 static inline kk_vi_t kksmallint_as_kkvarint(kk_si_t kksmallint)
 {
 #ifdef KK_INT_TEST_ON_CAST
-  if (KK_SMALLINT_IS_VALID(kksmallint))
+  if (KK_SI_IS_VALID(kksmallint))
     assert(0 && "Trying to cast a bigint to a smallint.");
 #endif
 
@@ -27,7 +27,7 @@ static inline kk_vi_t kksmallint_as_kkvarint(kk_si_t kksmallint)
 static inline kk_bi_t kkvarint_as_kkbigint(kk_vi_t kkint)
 {
 #ifdef KK_INT_TEST_ON_CAST
-  if (KK_VARINT_IS_SMALLINT(kkint))
+  if (KK_VI_IS_SI(kkint))
     assert(0 && "Trying to cast a smallint to a bigint.");
 #endif
 
@@ -37,7 +37,7 @@ static inline kk_bi_t kkvarint_as_kkbigint(kk_vi_t kkint)
 static inline kk_vi_t kkbigint_as_kkvarint(kk_bi_t kkbigint)
 {
 #ifdef KK_INT_TEST_ON_CAST
-  if (KK_BIGINT_IS_VALID(kkbigint))
+  if (KK_BI_IS_VALID(kkbigint))
     assert(0 && "Trying to cast a smallint to a bigint.");
 #endif
 
@@ -46,7 +46,7 @@ static inline kk_vi_t kkbigint_as_kkvarint(kk_bi_t kkbigint)
 
 static inline void free_kkvarint(kk_vi_t varint)
 {
-  if (KK_VARINT_IS_BIGINT(varint))
+  if (KK_VI_IS_BI(varint))
     free(kkvarint_as_kkbigint(varint));
 }
 
