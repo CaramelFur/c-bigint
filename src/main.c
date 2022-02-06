@@ -16,7 +16,7 @@ void test1()
   char *ok = malloc(128);
   memcpy(ok, start, strlen(start));
 
-  kk_varint_t varint;
+  kk_vi_t varint;
 
   for (int i = 0; i < 10000000; i++)
   {
@@ -30,19 +30,19 @@ void test1()
 
 void test2()
 {
-  kk_varint_t COUNT = 100000000;
+  kk_vi_t COUNT = 100000000;
 
-  kk_varint_t a = 1;
+  kk_vi_t a = 1;
 
   clock_t begin, end;
 
   printf("Start\n");
 
-  kk_varint_t c[2] = {0, 0};
+  kk_vi_t c[2] = {0, 0};
 
   begin = clock();
 
-  for (kk_varint_t i = 0; i < COUNT; i++)
+  for (kk_vi_t i = 0; i < COUNT; i++)
   {
     c[i % 2] = c[i % 2] * add_borrowed_kkvarint_to_borrowed_kkvarint(a, i * 0xffffffff) % 10;
   }
@@ -59,7 +59,7 @@ void test2()
 
   begin = clock();
 
-  for (kk_varint_t i = 0; i < COUNT; i++)
+  for (kk_vi_t i = 0; i < COUNT; i++)
   {
     c[i % 2] = c[i % 2] * (a + i * 0xffffffff) % 10;
   }
@@ -101,12 +101,12 @@ void test4()
   memcpy(ok_one, start_one, strlen(start_one));
   memcpy(ok_two, start_two, strlen(start_two));
 
-  kk_varint_t a = create_kkvarint_from_borrowed_hexstr(ok_one);
-  kk_varint_t b = create_kkvarint_from_borrowed_hexstr(ok_two);
+  kk_vi_t a = create_kkvarint_from_borrowed_hexstr(ok_one);
+  kk_vi_t b = create_kkvarint_from_borrowed_hexstr(ok_two);
 
   for (int i = 0; i < 10000; i++)
   {
-    kk_varint_t c = kkvarint_clone(b);
+    kk_vi_t c = kkvarint_clone(b);
     a = add_borrowed_kkvarint_to_borrowed_kkvarint(a, c);
   }
 

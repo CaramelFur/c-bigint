@@ -44,76 +44,131 @@
 #define KK_INT_TEST_ON_CAST
 #endif
 
+// Imporant
+typedef uint8_t kk_byte;
+#define KK_BYTE_SIZE sizeof(kk_byte)
+
+#define KK_BIT_LSBF(type, bit) ((type)1 << (bit))
+#define KK_BIT_MSBF(type, bit) ((type)1 << ((sizeof(type) * 8) - (bit)-1))
+
+// Adjust to system bits
 #define KK_POINTER_SIZE __SIZEOF_POINTER__
 
-#define KK_VARINT_SIZE KK_POINTER_SIZE
-#define KK_VARINT_BITS (KK_VARINT_SIZE * 8)
-
-#if KK_VARINT_SIZE == 16
-typedef int128_t kk_varint_t;
-typedef uint128_t kk_varint_data_t;
-#define KK_VARINT_MAX 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-#elif KK_VARINT_SIZE == 8
-typedef int64_t kk_varint_t;
-typedef uint64_t kk_varint_data_t;
-#define KK_VARINT_MAX __INT64_MAX__
-#elif KK_VARINT_SIZE == 4
-typedef int32_t kk_varint_t;
-typedef uint32_t kk_varint_data_t;
-#define KK_VARINT_MAX __INT32_MAX__
-#elif KK_VARINT_SIZE == 2
-typedef int16_t kk_varint_t;
-typedef uint16_t kk_varint_data_t;
-#define KK_VARINT_MAX __INT16_MAX__
+#if KK_POINTER_SIZE == 16
+// 128 BIT
+typedef int128_t kk_full_int_t;
+typedef uint128_t kk_full_uint_t;
+typedef int64_t kk_half_uint_t;
+typedef uint64_t kk_half_uint_t;
+#define KK_FULL_INT_MAX 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+#define KK_FULL_UINT_MAX 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+#define KK_HALF_INT_MAX __INT64_MAX__
+#define KK_HALF_UINT_MAX __UINT64_MAX__
+#elif KK_POINTER_SIZE == 8
+// 64 BIT
+typedef int64_t kk_full_int_t;
+typedef uint64_t kk_full_uint_t;
+typedef int32_t kk_half_uint_t;
+typedef uint32_t kk_half_uint_t;
+#define KK_FULL_INT_MAX __INT64_MAX__
+#define KK_FULL_UINT_MAX __UINT64_MAX__
+#define KK_HALF_INT_MAX __INT32_MAX__
+#define KK_HALF_UINT_MAX __UINT32_MAX__
+#elif KK_POINTER_SIZE == 4
+// 32 BIT
+typedef int32_t kk_full_int_t;
+typedef uint32_t kk_full_uint_t;
+typedef int16_t kk_half_uint_t;
+typedef uint16_t kk_half_uint_t;
+#define KK_FULL_INT_MAX __INT32_MAX__
+#define KK_FULL_UINT_MAX __UINT32_MAX__
+#define KK_HALF_INT_MAX __INT16_MAX__
+#define KK_HALF_UINT_MAX __UINT16_MAX__
+#elif KK_POINTER_SIZE == 2
+// 16 BIT
+typedef int16_t kk_full_int_t;
+typedef uint16_t kk_full_uint_t;
+typedef int8_t kk_half_uint_t;
+typedef uint8_t kk_half_uint_t;
+#define KK_FULL_INT_MAX __INT16_MAX__
+#define KK_FULL_UINT_MAX __UINT16_MAX__
+#define KK_HALF_INT_MAX __INT8_MAX__
+#define KK_HALF_UINT_MAX __UINT8_MAX__
 #else
 #error "platform must be 16, 32, 64, or 128 bits."
 #endif
 
-typedef kk_varint_t kk_smallint_t;
+#define KK_FULL_INT_MIN (-KK_FULL_INT_MAX - 1)
+#define KK_FULL_UINT_MIN 0
+#define KK_HALF_INT_MIN (-KK_HALF_INT_MAX - 1)
+#define KK_HALF_UINT_MIN 0
 
-typedef void *kk_bigint_t;
-typedef size_t kk_bigint_length_t;
-typedef kk_varint_data_t *kk_bigint_data_array_t;
-typedef uint8_t *kk_bigint_byte_array_t;
+// Varint
+typedef kk_full_uint_t kk_vi_t;
+#define KK_VI_SIZE (sizeof(kk_vi_t))
+#define KK_VI_BITS (KK_VI_SIZE * 8)
 
-#define _KK_SMALLINT_BITS_RESERVED 2
-#define _KK_SMALLINT_BITS_ALIGNMENT 4 // 2^_KK_SMALLINT_BITS_RESERVED
+#define KK_VI_OVERFLOW_BIT KK_BIT_MSBF(kk_vi_t, 0)
+#define KK_VI_LARGE_BIT KK_BIT_MSBF(kk_vi_t, 1)
+#define KK_VI_SIGN_BIT KK_BIT_MSBF(kk_vi_t, 2)
+#define KK_VI_META_MASK (KK_VI_OVERFLOW_BIT + KK_VI_LARGE_BIT)
+#define KK_VI_DATA_MASK (~KK_VI_META_MASK)
 
-#define KK_SMALLINT_SIZE KK_VARINT_SIZE
-#define KK_SMALLINT_BITS KK_VARINT_BITS
-#define KK_SMALLINT_BITS_DATA (KK_VARINT_BITS - _KK_SMALLINT_BITS_RESERVED)
-#define KK_SMALLINT_MAX (KK_VARINT_MAX >> _KK_SMALLINT_BITS_RESERVED)
-#define KK_SMALLINT_MIN (-KK_SMALLINT_MAX - 1)
+// Bigint
+typedef void *kk_bi_t;
+typedef kk_full_uint_t kk_bi_length_t;
+typedef kk_full_uint_t kk_bi_fullpart_t;
+typedef kk_half_uint_t kk_bi_smallpart_t;
+typedef kk_byte kk_bi_bytepart_t;
 
-#define KK_VARINT_BIT_LSBF(bit) ((kk_varint_t)1 << (bit))
-#define KK_VARINT_BIT_MSBF(bit) ((kk_varint_t)1 << (KK_VARINT_BITS - (bit)-1))
-#define KK_VARINT_OVERFLOW_BIT KK_VARINT_BIT_MSBF(0)
-#define KK_VARINT_LARGE_BIT KK_VARINT_BIT_MSBF(1)
-#define KK_VARINT_SIGN_BIT KK_VARINT_BIT_MSBF(2)
-#define KK_VARINT_META_MASK (KK_VARINT_OVERFLOW_BIT + KK_VARINT_LARGE_BIT)
-#define KK_VARINT_DATA_MASK (~KK_VARINT_META_MASK)
+typedef kk_bi_fullpart_t *kk_bi_fullp_arr_t;
+typedef kk_bi_smallpart_t *kk_bi_smallp_arr_t;
+typedef kk_bi_bytepart_t *kk_bi_bytep_arr_t;
 
-#define KK_SMALLINT_SIGN_BIT KK_VARINT_BIT_MSBF(0)
+#define KK_BI_HEADER_SIZE (sizeof(kk_bi_length_t))
+#define KK_BI_FULLPART_SIZE (sizeof(kk_bi_fullpart_t))
+#define KK_BI_FULLPART_BITS (KK_BI_FULLPART_SIZE * 8)
+#define KK_BI_SMALLPART_SIZE (sizeof(kk_bi_smallpart_t))
+#define KK_BI_SMALLPART_BITS (KK_BI_SMALLPART_SIZE * 8)
+#define KK_BI_BYTEPART_SIZE (sizeof(kk_bi_bytepart_t))
+#define KK_BI_BYTEPART_BITS (KK_BI_BYTEPART_SIZE * 8)
 
-#define KK_BIGINT_HEADER_SIZE (sizeof(kk_bigint_length_t))
-#define KK_BIGINT_DATA_SIZE (sizeof(kk_varint_data_t))
-#define KK_BIGINT_DATA_BITS (KK_BIGINT_DATA_SIZE * 8)
+// Smallint
+typedef kk_full_int_t kk_si_t;
+#define KK_SI_SIZE (sizeof(kk_si_t))
+#define KK_SI_BITS (KK_SI_SIZE * 8)
+
+#define _KK_SI_BITS_RESERVED 2
+#define _KK_SI_BITS_ALIGNMENT 4 // 2^_KK_SI_BITS_RESERVED
+#define KK_SI_BITS_DATA (KK_SI_BITS - _KK_SI_BITS_RESERVED)
+#define KK_SI_MAX (KK_FULL_INT_MAX >> _KK_SI_BITS_RESERVED)
+#define KK_SI_MIN (-KK_SI_MAX - 1)
+
+#define KK_SI_SIGN_BIT KK_BIT_MSBF(kk_si_t, 0)
 
 // Define functions
 
-#define KK_BIGINT_GET_DATA_LENGTH(bigint) (*(kk_bigint_length_t *)(bigint))
-#define KK_BIGINT_GET_DATA_ARRAY(bigint) ((kk_bigint_data_array_t)((uint8_t *)bigint + KK_BIGINT_HEADER_SIZE))
-#define KK_BIGINT_GET_DATA_LENGTH_BYTES(bigint) (KK_BIGINT_GET_DATA_LENGTH(bigint) * KK_SMALLINT_SIZE)
-#define KK_BIGINT_GET_DATA_ARRAY_BYTES(bigint) ((kk_bigint_byte_array_t)((uint8_t *)bigint + KK_BIGINT_HEADER_SIZE))
+// Varint
+#define KK_VI_IS_BI(varint) ((varint)&KK_VI_LARGE_BIT)
+#define KK_VI_IS_SI(varint) (!KK_VI_IS_BI(varint))
 
-#define KK_BIGINT_CALC_FULL_SIZE(length) (KK_BIGINT_HEADER_SIZE + (length)*KK_SMALLINT_SIZE)
+// Bigint
+#define _KK_BI_GET_HEADER(bigint) (*(kk_bi_length_t *)(bigint))
+#define _KK_BI_GET_BODY(bigint) ((void *)((uint8_t *)bigint + KK_BI_HEADER_SIZE))
+#define KK_BI_GET_FULLP_LENGTH(bigint) (_KK_BI_GET_HEADER(bigint))
+#define KK_BI_GET_FULLP_ARRAY(bigint) ((kk_bi_fullp_arr_t)_KK_BI_GET_BODY(bigint))
+#define KK_BI_GET_SMALLP_LENGTH(bigint) (_KK_BI_GET_HEADER(bigint) * (KK_BI_FULLPART_SIZE / KK_BI_SMALLPART_SIZE))
+#define KK_BI_GET_SMALLP_ARRAY(bigint) ((kk_bi_smallp_arr_t)_KK_BI_GET_BODY(bigint))
+#define KK_BI_GET_BYTEP_LENGTH(bigint) (_KK_BI_GET_HEADER(bigint) * KK_BI_FULLPART_SIZE)
+#define KK_BI_GET_BYTEP_ARRAY(bigint) ((kk_bi_bytep_arr_t)_KK_BI_GET_BODY(bigint))
 
-#define KK_VARINT_IS_BIGINT(varint) ((varint)&KK_VARINT_LARGE_BIT)
-#define KK_VARINT_IS_SMALLINT(varint) (!KK_VARINT_IS_BIGINT(varint))
-#define KK_SMALLINT_HAS_OVERFLOWED(varint) ((varint) & (KK_VARINT_LARGE_BIT + KK_VARINT_OVERFLOW_BIT))
-#define KK_SMALLINT_NOT_OVERFLOWED(varint) (!KK_SMALLINT_HAS_OVERFLOWED(varint))
-#define KK_SMALLINT_IS_VALID(smallint) ((smallint) <= KK_SMALLINT_MAX && (smallint) >= KK_SMALLINT_MIN)
-#define KK_BIGINT_IS_VALID(bigint) (((kk_varint_data_t)bigint & 0x3) != 0)
+#define KK_BI_CALC_FULL_SIZE(length) (KK_BI_HEADER_SIZE + (length)*KK_BI_FULLPART_SIZE)
+#define KK_BI_IS_VALID(bigint) (((kk_bi_t)bigint & 0x3) != 0)
+
+// Smallint
+#define KK_SI_HAS_OVERFLOWED(varint) ((varint) & (KK_VI_LARGE_BIT + KK_VI_OVERFLOW_BIT))
+#define KK_SI_NOT_OVERFLOWED(varint) (!KK_SMALLINT_HAS_OVERFLOWED(varint))
+#define KK_SI_IS_VALID(smallint) ((smallint) <= KK_SI_MAX && (smallint) >= KK_SI_MIN)
 
 // Inline Functions ------------------------------------------
 
@@ -121,23 +176,23 @@ typedef uint8_t *kk_bigint_byte_array_t;
 
 // Functions -------------------------------------------------
 
-kk_varint_t create_kkvarint(kk_smallint_t value);
-kk_varint_t kkvarint_clone(kk_varint_t value);
+kk_vi_t create_kkvarint(kk_si_t value);
+kk_vi_t kkvarint_clone(kk_vi_t value);
 
-kk_bigint_t create_kkbigint_parts(kk_bigint_length_t parts);
-kk_bigint_t create_kkbigint_bits(kk_bigint_length_t bits);
-kk_varint_t create_kkvarint_from_borrowed_hexstr(char *hexstr);
-char *create_hexstr_from_borrowed_kkvarint(kk_varint_t varint);
-char *create_decstr_from_borrowed_kkvarint(kk_varint_t varint);
+kk_bi_t create_kkbigint_parts(kk_bi_length_t parts);
+kk_bi_t create_kkbigint_bits(kk_bi_length_t bits);
+kk_vi_t create_kkvarint_from_borrowed_hexstr(char *hexstr);
+char *create_hexstr_from_borrowed_kkvarint(kk_vi_t varint);
+char *create_decstr_from_borrowed_kkvarint(kk_vi_t varint);
 
-kk_bigint_length_t kkbigint_get_used_parts(kk_bigint_t bigint);
-kk_bigint_t kkbigint_shrink_to_fit(kk_bigint_t bigint);
-kk_bigint_t kkbigint_resize(kk_bigint_t bigint, kk_bigint_length_t new_parts);
-kk_bigint_t kkbigint_clone(kk_bigint_t bigint);
+kk_bi_length_t kkbigint_get_used_parts(kk_bi_t bigint);
+kk_bi_t kkbigint_shrink_to_fit(kk_bi_t bigint);
+kk_bi_t kkbigint_resize(kk_bi_t bigint, kk_bi_length_t new_parts);
+kk_bi_t kkbigint_clone(kk_bi_t bigint);
 
 // Util functions --------------------------------------------
 
-void print_kkbigint_internal(kk_bigint_t bigint);
+void print_kkbigint_internal(kk_bi_t bigint);
 
 // Math ------------------------------------------------------
 
