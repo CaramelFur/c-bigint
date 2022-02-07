@@ -162,7 +162,7 @@ typedef kk_full_int_t kk_si_t;
 #define KK_BI_GET_BYTEP_ARRAY(bigint) ((kk_bi_bytep_arr_t)_KK_BI_GET_BODY(bigint))
 
 #define KK_BI_CALC_FULL_SIZE(length) (KK_BI_HEADER_SIZE + (length)*KK_BI_FULLPART_SIZE)
-#define KK_BI_IS_VALID(bigint) (((kk_vi_t)bigint & 0x3) != 0)
+#define KK_BI_IS_VALID(bigint) (((kk_vi_t)bigint & 0x3) == 0)
 #define KK_BI_NOT_VALID(bigint) (!KK_BI_IS_VALID(bigint))
 
 // Smallint

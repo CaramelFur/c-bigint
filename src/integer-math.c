@@ -30,9 +30,9 @@ kk_vi_t _add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_vi_t varint_a, kk_vi
 static inline kk_vi_t add_borrowed_kkbigint_to_borrowed_kkbigint(kk_bi_t bigint_a, kk_bi_t bigint_b)
 {
   if (KK_BI_GET_FULLP_LENGTH(bigint_a) > KK_BI_GET_FULLP_LENGTH(bigint_b))
-    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optiona(bigint_a, bigint_b);
+    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optionb(bigint_a, bigint_b);
   else
-    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optiona(bigint_b, bigint_a);
+    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optionb(bigint_b, bigint_a);
 }
 
 static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optiona(kk_bi_t bigint_larger, kk_bi_t bigint_smaller)
@@ -122,6 +122,5 @@ static inline kk_vi_t add_borrowed_kkbigint_to_kksmallint(kk_bi_t bigint_a, kk_s
 
 static inline kk_vi_t add_kksmallint_to_kksmallint(kk_si_t varint_a, kk_si_t varint_b)
 {
-  printf("add_kksmallint_to_kksmallint %lx %lx %lx\n", varint_a, varint_b, varint_a + varint_b);
   return create_kkvarint(varint_a + varint_b);
 }

@@ -81,6 +81,8 @@ kk_bi_t kkbigint_shrink_to_fit(kk_bi_t bigint)
 kk_bi_t kkbigint_resize(kk_bi_t bigint, kk_bi_length_t new_parts)
 {
   bigint = realloc(bigint, KK_BI_CALC_FULL_SIZE(new_parts));
+  *((kk_bi_length_t *)bigint) = new_parts;
+  
   if (KK_BI_IS_VALID(bigint))
     return bigint;
 

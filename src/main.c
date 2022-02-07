@@ -93,23 +93,22 @@ void test3()
 void test4()
 {
   // 64 bit of ones
-  char start_one[] = "1";
+  char start_one[] = "69";
 
   char *ok_one = malloc(18);
   memcpy(ok_one, start_one, strlen(start_one));
 
   kk_vi_t accumulator = create_kkvarint_from_borrowed_hexstr(ok_one);
 
-  for (int i = 0; i < 100; i++)
+  for (int i = 0; i < 300000; i++)
   {
     kk_vi_t a = kkvarint_clone(accumulator);
     kk_vi_t b = kkvarint_clone(accumulator);
     accumulator = add_borrowed_kkvarint_to_borrowed_kkvarint(a, b);
-    print_bits(&accumulator, sizeof(kk_vi_t));
-    printf("\n");
-    char *ok = create_hexstr_from_borrowed_kkvarint(kkvarint_clone(accumulator));
-    printf("%02d %s\n", i, ok);
   }
+
+  char *ok = create_hexstr_from_borrowed_kkvarint(kkvarint_clone(accumulator));
+  printf("%s\n", ok);
 }
 
 void test5()
@@ -163,8 +162,10 @@ int main()
   kk_vi_t b = create_kkvarint(0xf0);
   kk_vi_t c = add_borrowed_kkvarint_to_borrowed_kkvarint(a, b);
 
-  char* s = create_hexstr_from_borrowed_kkvarint(c);
+  char *s = create_hexstr_from_borrowed_kkvarint(c);
   printf("%s\n", s);
+
+  test4();
 
   return 0;
 }
