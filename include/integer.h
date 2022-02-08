@@ -184,6 +184,7 @@ typedef kk_full_int_t kk_si_t;
 kk_vi_t create_kkvarint(kk_si_t value);
 kk_vi_t kkvarint_clone(kk_vi_t value);
 
+kk_bi_t create_kkbigint(kk_si_t value);
 kk_bi_t create_kkbigint_parts(kk_bi_length_t parts);
 kk_bi_t create_kkbigint_bits(kk_bi_length_t bits);
 kk_vi_t create_kkvarint_from_borrowed_hexstr(char *hexstr);

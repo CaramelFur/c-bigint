@@ -4,7 +4,13 @@
 // Internal inlines definitions
 
 static inline kk_vi_t add_borrowed_kkbigint_to_borrowed_kkbigint(kk_bi_t bigint_a, kk_bi_t bigint_b);
-static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(kk_bi_t bigint_larger, kk_bi_t bigint_smaller);
+static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(
+    kk_bi_t bigint_larger,
+    kk_bi_t bigint_smaller,
+    kk_bi_length_t larger_length,
+    kk_bi_smallp_arr_t data_larger,
+    kk_bi_length_t smaller_length,
+    kk_bi_smallp_arr_t data_smaller);
 static inline kk_vi_t add_borrowed_kkbigint_to_kksmallint(kk_bi_t bigint_a, kk_si_t varint_b);
 static inline kk_vi_t add_kksmallint_to_kksmallint(kk_si_t varint_a, kk_si_t varint_b);
 
@@ -26,21 +32,43 @@ kk_vi_t _add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_vi_t varint_a, kk_vi
 
 // Internal inlines
 
-static inline kk_vi_t add_borrowed_kkbigint_to_borrowed_kkbigint(kk_bi_t bigint_a, kk_bi_t bigint_b)
+static inline kk_vi_t add_kksmallint_to_kksmallint(kk_si_t varint_a, kk_si_t varint_b)
 {
-  if (KK_BI_GET_FULLP_LENGTH(bigint_a) > KK_BI_GET_FULLP_LENGTH(bigint_b))
-    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(bigint_a, bigint_b);
-  else
-    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(bigint_b, bigint_a);
+  return kkbigint_as_kkvarint(create_kkbigint(varint_a + varint_b));
 }
 
-static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(kk_bi_t bigint_larger, kk_bi_t bigint_smaller)
+static inline kk_vi_t add_borrowed_kkbigint_to_borrowed_kkbigint(kk_bi_t bigint_a, kk_bi_t bigint_b)
+{
+  kk_bi_length_t a_length = KK_BI_GET_SMALLP_LENGTH(bigint_a);
+  kk_bi_length_t b_length = KK_BI_GET_SMALLP_LENGTH(bigint_b);
+  kk_bi_smallp_arr_t a_data = KK_BI_GET_SMALLP_ARRAY(bigint_a);
+  kk_bi_smallp_arr_t b_data = KK_BI_GET_SMALLP_ARRAY(bigint_b);
+
+  if (a_length > b_length)
+    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(bigint_a, bigint_b, a_length, a_data, b_length, b_data);
+  else
+    return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(bigint_b, bigint_a, b_length, b_data, a_length, a_data);
+}
+
+static inline kk_vi_t add_borrowed_kkbigint_to_kksmallint(kk_bi_t bigint_a, kk_si_t varint_b)
+{
+  kk_bi_length_t big_length = KK_BI_GET_SMALLP_LENGTH(bigint_a);
+  kk_bi_smallp_arr_t big_data = KK_BI_GET_SMALLP_ARRAY(bigint_a);
+  kk_bi_length_t small_length = sizeof(kk_si_t);
+  kk_bi_smallp_arr_t small_data = (kk_bi_smallp_arr_t)&varint_b;
+
+  return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(bigint_a, NULL, big_length, big_data, small_length, small_data);
+}
+
+static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(
+    kk_bi_t bigint_larger,
+    kk_bi_t bigint_smaller,
+    kk_bi_length_t larger_length,
+    kk_bi_smallp_arr_t data_larger,
+    kk_bi_length_t smaller_length,
+    kk_bi_smallp_arr_t data_smaller)
 {
   // printf("add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optionb\n");
-  kk_bi_length_t larger_length = KK_BI_GET_SMALLP_LENGTH(bigint_larger);
-  kk_bi_length_t smaller_length = KK_BI_GET_SMALLP_LENGTH(bigint_smaller);
-  kk_bi_smallp_arr_t data_larger = KK_BI_GET_SMALLP_ARRAY(bigint_larger);
-  kk_bi_smallp_arr_t data_smaller = KK_BI_GET_SMALLP_ARRAY(bigint_smaller);
 
   kk_bi_fullpart_t carry = 0;
 
@@ -70,19 +98,4 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
   free_kkbigint(bigint_smaller);
 
   return kkbigint_as_kkvarint(bigint_larger);
-}
-
-static inline kk_vi_t add_borrowed_kkbigint_to_kksmallint(kk_bi_t bigint_a, kk_si_t varint_b)
-{
-  // printf("add_borrowed_kkbigint_to_borrowed_kkvarint\n");
-  free_kkbigint(bigint_a);
-
-  // ignore unused
-  (void)varint_b;
-  return 0;
-}
-
-static inline kk_vi_t add_kksmallint_to_kksmallint(kk_si_t varint_a, kk_si_t varint_b)
-{
-  return create_kkvarint(varint_a + varint_b);
 }
