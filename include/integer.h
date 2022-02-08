@@ -154,9 +154,13 @@ typedef kk_full_int_t kk_si_t;
 // Bigint
 #define _KK_BI_GET_HEADER(bigint) (*(kk_bi_length_t *)(bigint))
 #define _KK_BI_GET_BODY(bigint) ((void *)((uint8_t *)bigint + KK_BI_HEADER_SIZE))
+
+#define KK_BI_FULLP_TO_SMALLP_LEN(length) ((length) * (KK_BI_FULLPART_SIZE / KK_BI_SMALLPART_SIZE))
+#define KK_BI_SMALLP_TO_FULLP_LEN(length) ((length) / (KK_BI_FULLPART_SIZE / KK_BI_SMALLPART_SIZE))
+
 #define KK_BI_GET_FULLP_LENGTH(bigint) (_KK_BI_GET_HEADER(bigint))
 #define KK_BI_GET_FULLP_ARRAY(bigint) ((kk_bi_fullp_arr_t)_KK_BI_GET_BODY(bigint))
-#define KK_BI_GET_SMALLP_LENGTH(bigint) (_KK_BI_GET_HEADER(bigint) * (KK_BI_FULLPART_SIZE / KK_BI_SMALLPART_SIZE))
+#define KK_BI_GET_SMALLP_LENGTH(bigint) (KK_BI_FULLP_TO_SMALLP_LEN(_KK_BI_GET_HEADER(bigint)))
 #define KK_BI_GET_SMALLP_ARRAY(bigint) ((kk_bi_smallp_arr_t)_KK_BI_GET_BODY(bigint))
 #define KK_BI_GET_BYTEP_LENGTH(bigint) (_KK_BI_GET_HEADER(bigint) * KK_BI_FULLPART_SIZE)
 #define KK_BI_GET_BYTEP_ARRAY(bigint) ((kk_bi_bytep_arr_t)_KK_BI_GET_BODY(bigint))
