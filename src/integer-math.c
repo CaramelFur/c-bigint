@@ -16,6 +16,26 @@ static inline kk_vi_t add_kksmallint_to_kksmallint(kk_si_t varint_a, kk_si_t var
 
 // Functions
 
+kk_vi_t _negate_borrowed_kkbigint(kk_bi_t bigint)
+{
+  kk_bi_length_t length = KK_BI_GET_FULLP_LENGTH(bigint);
+  kk_bi_fullp_arr_t data = KK_BI_GET_FULLP_ARRAY(bigint);
+
+  for (kk_bi_length_t i = 0; i < length; i++)
+  {
+    data[i] = ~data[i];
+  }
+
+  kk_bi_fullpart_t one = 1;
+  return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(
+      bigint,
+      NULL,
+      KK_BI_FULLP_TO_SMALLP_LEN(length),
+      (kk_bi_smallp_arr_t)data,
+      KK_BI_BYTEP_TO_SMALLP_LEN(KK_BI_FULLPART_SIZE),
+      (kk_bi_smallp_arr_t)&one);
+}
+
 kk_vi_t _add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_vi_t varint_a, kk_vi_t varint_b)
 {
   if (KK_VI_IS_BI(varint_a & varint_b))
@@ -34,7 +54,7 @@ kk_vi_t _add_borrowed_kkvarint_to_borrowed_kkvarint_slow(kk_vi_t varint_a, kk_vi
 
 static inline kk_vi_t add_kksmallint_to_kksmallint(kk_si_t varint_a, kk_si_t varint_b)
 {
-  return kkbigint_as_kkvarint(create_kkbigint(varint_a + varint_b));
+  return create_kkvarint(varint_a + varint_b);
 }
 
 static inline kk_vi_t add_borrowed_kkbigint_to_borrowed_kkbigint(kk_bi_t bigint_a, kk_bi_t bigint_b)
@@ -54,7 +74,7 @@ static inline kk_vi_t add_borrowed_kkbigint_to_kksmallint(kk_bi_t bigint_a, kk_s
 {
   kk_bi_length_t big_length = KK_BI_GET_SMALLP_LENGTH(bigint_a);
   kk_bi_smallp_arr_t big_data = KK_BI_GET_SMALLP_ARRAY(bigint_a);
-  kk_bi_length_t small_length = sizeof(kk_si_t);
+  kk_bi_length_t small_length = KK_BI_BYTEP_TO_SMALLP_LEN(sizeof(kk_si_t));
   kk_bi_smallp_arr_t small_data = (kk_bi_smallp_arr_t)&varint_b;
 
   return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(bigint_a, NULL, big_length, big_data, small_length, small_data);
@@ -75,7 +95,7 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
   kk_bi_smallpart_t a = 0;
   kk_bi_smallpart_t b = 0;
 
-  for (size_t i = 0; i < smaller_length; i++)
+  for (kk_bi_length_t i = 0; i < smaller_length; i++)
   {
     a = data_smaller[i];
     b = data_larger[i];

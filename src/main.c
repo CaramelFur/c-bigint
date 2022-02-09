@@ -160,16 +160,25 @@ void test5()
   */
 }
 
+void test6()
+{
+  int64_t test = 1;
+  printf("%ld %lx\n", test, test);
+  int64_t test2 = ~test + 1;
+  printf("%ld %lx\n", test2, test2);
+
+  kk_vi_t a = kkbigint_as_kkvarint(kkbigint_resize(create_kkbigint(1), 2));
+  print_kkbigint_internal(kkvarint_as_kkbigint(a));
+  a = kkbigint_as_kkvarint(kkbigint_resize(kkvarint_as_kkbigint(negate_borrowed_kkvarint(a)), 4));
+  print_kkbigint_internal(kkvarint_as_kkbigint(a));
+  a = negate_borrowed_kkvarint(a);
+  print_kkbigint_internal(kkvarint_as_kkbigint(a));
+}
+
 int main()
 {
-  kk_vi_t a = create_kkvarint(0x0F);
-  kk_vi_t b = create_kkvarint(0xf0);
-  kk_vi_t c = add_borrowed_kkvarint_to_borrowed_kkvarint(a, b);
 
-  char *s = create_hexstr_from_borrowed_kkvarint(c);
-  printf("%s\n", s);
-
-  test4();
+  test6();
 
   return 0;
 }

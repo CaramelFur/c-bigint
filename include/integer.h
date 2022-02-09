@@ -157,6 +157,10 @@ typedef kk_full_int_t kk_si_t;
 
 #define KK_BI_FULLP_TO_SMALLP_LEN(length) ((length) * (KK_BI_FULLPART_SIZE / KK_BI_SMALLPART_SIZE))
 #define KK_BI_SMALLP_TO_FULLP_LEN(length) ((length) / (KK_BI_FULLPART_SIZE / KK_BI_SMALLPART_SIZE))
+#define KK_BI_FULLP_TO_BYTEP_LEN(length) ((length) * (KK_BI_FULLPART_SIZE / KK_BI_BYTEPART_SIZE))
+#define KK_BI_BYTEP_TO_FULLP_LEN(length) ((length) / (KK_BI_FULLPART_SIZE / KK_BI_BYTEPART_SIZE))
+#define KK_BI_SMALLP_TO_BYTEP_LEN(length) ((length) * (KK_BI_SMALLPART_SIZE / KK_BI_BYTEPART_SIZE))
+#define KK_BI_BYTEP_TO_SMALLP_LEN(length) ((length) / (KK_BI_SMALLPART_SIZE / KK_BI_BYTEPART_SIZE))
 
 #define KK_BI_GET_FULLP_LENGTH(bigint) (_KK_BI_GET_HEADER(bigint))
 #define KK_BI_GET_FULLP_ARRAY(bigint) ((kk_bi_fullp_arr_t)_KK_BI_GET_BODY(bigint))

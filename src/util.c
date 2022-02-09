@@ -1,6 +1,7 @@
 #include "util.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // Yes it looks stupid, but its faster than calculating the values
 const char nibble2hex_table[0x100] = {
@@ -53,4 +54,12 @@ void print_bits(void *data, size_t length)
 uint8_t hex2byte(char *hexpair)
 {
   return (uint8_t)(hex2nibble(hexpair[0]) << 4) | hex2nibble(hexpair[1]);
+}
+
+char *create_string(const char *str)
+{
+  size_t len = strlen(str);
+  char *returnable = malloc(len + 1);
+  strncpy(returnable, str, len + 1);
+  return returnable;
 }

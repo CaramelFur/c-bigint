@@ -58,3 +58,4 @@ static inline size_t bcds_for_n_bits(size_t amount_bits) {
 
 void print_bits(void *data, size_t length);
 uint8_t hex2byte(char *hexpair);
+char *create_string(const char *str);

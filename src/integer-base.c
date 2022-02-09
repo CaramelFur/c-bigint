@@ -85,8 +85,21 @@ kk_bi_t kkbigint_shrink_to_fit(kk_bi_t bigint)
 
 kk_bi_t kkbigint_resize(kk_bi_t bigint, kk_bi_length_t new_parts)
 {
+  kk_bi_length_t old_partsb = KK_BI_GET_BYTEP_LENGTH(bigint);
+  kk_bi_length_t new_partsb = KK_BI_FULLP_TO_BYTEP_LEN(new_parts);
+
   bigint = realloc(bigint, KK_BI_CALC_FULL_SIZE(new_parts));
   *((kk_bi_length_t *)bigint) = new_parts;
+
+  kk_bi_bytep_arr_t new_datab = KK_BI_GET_BYTEP_ARRAY(bigint);
+
+  if (new_partsb > old_partsb)
+  {
+    if (new_datab[old_partsb - 1] & 0x80)
+      memset(new_datab + old_partsb, 0xff, new_partsb - old_partsb);
+    else
+      memset(new_datab + old_partsb, 0, new_partsb - old_partsb);
+  }
 
   if (KK_BI_IS_VALID(bigint))
     return bigint;
