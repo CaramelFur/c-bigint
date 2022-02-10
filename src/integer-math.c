@@ -22,9 +22,7 @@ kk_vi_t _negate_borrowed_kkbigint(kk_bi_t bigint)
   kk_bi_fullp_arr_t data = KK_BI_GET_FULLP_ARRAY(bigint);
 
   for (kk_bi_length_t i = 0; i < length; i++)
-  {
     data[i] = ~data[i];
-  }
 
   kk_bi_fullpart_t one = 1;
   return add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_option(
@@ -94,6 +92,9 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
 
   kk_bi_smallpart_t a = 0;
   kk_bi_smallpart_t b = 0;
+
+  kk_bi_smallpart_t test = data_smaller[smaller_length - 1] & data_larger[larger_length - 1] & 0xc0000000;
+  printf("test: %x\n", test);
 
   for (kk_bi_length_t i = 0; i < smaller_length; i++)
   {

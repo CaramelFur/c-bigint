@@ -175,10 +175,43 @@ void test6()
   print_kkbigint_internal(kkvarint_as_kkbigint(a));
 }
 
+void test7()
+{
+  printf("AAAA 1\n");
+
+  kk_vi_t pos = kkbigint_as_kkvarint(create_kkbigint(1));
+  kk_vi_t neg = negate_borrowed_kkvarint(kkvarint_clone(pos));
+
+  print_kkbigint_internal(kkvarint_as_kkbigint(pos));
+  print_kkbigint_internal(kkvarint_as_kkbigint(neg));
+
+  kk_vi_t new = add_borrowed_kkvarint_to_borrowed_kkvarint(pos, neg);
+  print_kkbigint_internal(kkvarint_as_kkbigint(new));
+  char *ok = create_hexstr_from_borrowed_kkvarint(new);
+  printf("%s\n", ok);
+
+  printf("AAAA 2\n");
+
+  uint64_t aa = 0x3fffffffffffffff;
+  uint64_t bb = 0x7fffffffffffffff;
+  printf("Trying: %ld + %ld = %ld\n", aa, bb, aa + bb);
+
+  kk_vi_t a = kkbigint_as_kkvarint(create_kkbigint(aa));
+  kk_vi_t b = kkbigint_as_kkvarint(create_kkbigint(bb));
+
+  print_kkbigint_internal(kkvarint_as_kkbigint(a));
+  print_kkbigint_internal(kkvarint_as_kkbigint(b));
+
+  kk_vi_t new2 = add_borrowed_kkvarint_to_borrowed_kkvarint(a, b);
+  print_kkbigint_internal(kkvarint_as_kkbigint(new2));
+  char *ok2 = create_hexstr_from_borrowed_kkvarint(kkvarint_clone(new2));
+  printf("%s\n", ok2);
+}
+
 int main()
 {
 
-  test6();
+  test7();
 
   return 0;
 }

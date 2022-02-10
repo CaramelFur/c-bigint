@@ -57,7 +57,7 @@ kk_bi_length_t kkbigint_get_used_parts(kk_bi_t bigint)
 
   do
     i--;
-  while (i > 0 && data[i] == 0);
+  while (i > 0 && (data[i] == 0 || data[i] == KK_BI_FULLPART_MAX));
 
   return i + 1;
 }

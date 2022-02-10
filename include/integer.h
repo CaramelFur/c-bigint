@@ -47,6 +47,7 @@
 // Imporant
 typedef uint8_t kk_byte;
 #define KK_BYTE_SIZE sizeof(kk_byte)
+#define KK_BYTE_MAX (__UINT8_MAX__)
 
 #define KK_BIT_LSBF(type, bit) ((type)1 << (bit))
 #define KK_BIT_MSBF(type, bit) ((type)1 << ((sizeof(type) * 8) - (bit)-1))
@@ -132,6 +133,10 @@ typedef kk_bi_bytepart_t *kk_bi_bytep_arr_t;
 #define KK_BI_BYTEPART_SIZE (sizeof(kk_bi_bytepart_t))
 #define KK_BI_BYTEPART_BITS (KK_BI_BYTEPART_SIZE * 8)
 
+#define KK_BI_FULLPART_MAX (KK_FULL_UINT_MAX)
+#define KK_BI_SMALLPART_MAX (KK_HALF_UINT_MAX)
+#define KK_BI_BYTEPART_MAX (KK_BYTE_MAX)
+
 // Smallint
 typedef kk_full_int_t kk_si_t;
 #define KK_SI_SIZE (sizeof(kk_si_t))
@@ -168,6 +173,10 @@ typedef kk_full_int_t kk_si_t;
 #define KK_BI_GET_SMALLP_ARRAY(bigint) ((kk_bi_smallp_arr_t)_KK_BI_GET_BODY(bigint))
 #define KK_BI_GET_BYTEP_LENGTH(bigint) (_KK_BI_GET_HEADER(bigint) * KK_BI_FULLPART_SIZE)
 #define KK_BI_GET_BYTEP_ARRAY(bigint) ((kk_bi_bytep_arr_t)_KK_BI_GET_BODY(bigint))
+
+#define KK_BI_FULLP_HAS_OVERFLOWED(fullp) ((fullp + KK_BIT_MSBF(kk_bi_fullpart_t, 1)) & KK_BIT_MSBF(kk_bi_fullpart_t, 0))
+#define KK_BI_SMALLP_HAS_OVERFLOWED(smallp) (((smallp >> 1 )+ KK_BIT_MSBF(kk_bi_smallpart_t, 1)) & KK_BIT_MSBF(kk_bi_smallpart_t, 0))
+#define KK_BI_BYTEP_HAS_OVERFLOWED(bytep) ((bytep + KK_BIT_MSBF(kk_bi_bytepart_t, 1)) & KK_BIT_MSBF(kk_bi_bytepart_t, 0))
 
 #define KK_BI_CALC_FULL_SIZE(length) (KK_BI_HEADER_SIZE + (length)*KK_BI_FULLPART_SIZE)
 #define KK_BI_IS_VALID(bigint) (((kk_vi_t)bigint & 0x3) == 0)
