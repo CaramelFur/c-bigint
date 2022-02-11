@@ -88,15 +88,20 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
 {
   // printf("add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optionb\n");
 
-  kk_bi_fullpart_t carry = 0;
+  kk_byte smaller_sign = (kk_byte)(data_smaller[smaller_length - 1] >> (KK_BI_BYTEPART_BITS - 1));
+  kk_byte larger_sign = (kk_byte)(data_larger[larger_length - 1] >> (KK_BI_BYTEPART_BITS - 1));
 
+  kk_bi_smallpart_t signext = (!smaller_sign) + KK_BI_SMALLPART_MAX;
+  // smaller_sign
+  //     ? KK_BI_SMALLPART_MAX
+  //     : 0;
+
+  kk_bi_fullpart_t carry = 0;
   kk_bi_smallpart_t a = 0;
   kk_bi_smallpart_t b = 0;
+  kk_bi_length_t i = 0;
 
-  kk_bi_smallpart_t test = data_smaller[smaller_length - 1] & data_larger[larger_length - 1] & 0xc0000000;
-  printf("test: %x\n", test);
-
-  for (kk_bi_length_t i = 0; i < smaller_length; i++)
+  for (; i < smaller_length; i++)
   {
     a = data_smaller[i];
     b = data_larger[i];
@@ -106,17 +111,36 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
     carry >>= KK_BI_SMALLPART_BITS;
   }
 
-  if (carry)
+  free_kkbigint(bigint_smaller);
+
+  for (; i < larger_length; i++)
   {
-    if (smaller_length == larger_length)
-    {
-      bigint_larger = kkbigint_resize(bigint_larger, KK_BI_SMALLP_TO_FULLP_LEN(larger_length) + 1);
-      data_larger = KK_BI_GET_SMALLP_ARRAY(bigint_larger);
-    }
-    data_larger[smaller_length] = (kk_bi_smallpart_t)carry;
+    b = data_larger[i];
+    carry = (kk_bi_fullpart_t)signext + (kk_bi_fullpart_t)b + carry;
+    data_larger[i] = (kk_bi_smallpart_t)carry;
+
+    carry >>= KK_BI_SMALLPART_BITS;
   }
 
-  free_kkbigint(bigint_smaller);
+  kk_byte final_sign_inv = !(data_larger[larger_length - 1] >> (KK_BI_BYTEPART_BITS - 1));
+
+  // TODO: optimize this
+  if (
+      (final_sign_inv & smaller_sign & larger_sign) == 1 ||
+      (final_sign_inv || smaller_sign || larger_sign) == 0)
+  {
+    kk_bi_length_t new_length = KK_BI_SMALLP_TO_FULLP_LEN(larger_length) + 1;
+
+    bigint_larger = kkbigint_resize(bigint_larger, new_length);
+    kk_bi_fullp_arr_t data_new = KK_BI_GET_FULLP_ARRAY(bigint_larger);
+
+    data_new[new_length - 1] = signext + carry;
+  }
+#ifdef KK_INT_AUTO_SHRINK
+  // If we haven't carried, we can check if we can shrink
+  else
+    return kkvarint_shrink(kkbigint_as_kkvarint(bigint_larger));
+#endif
 
   return kkbigint_as_kkvarint(bigint_larger);
 }

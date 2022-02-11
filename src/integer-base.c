@@ -19,6 +19,22 @@ kk_vi_t kkvarint_clone(kk_vi_t varint)
   return kkbigint_as_kkvarint(kkbigint_clone(kkvarint_as_kkbigint(varint)));
 }
 
+kk_vi_t kkvarint_shrink(kk_vi_t varint)
+{
+  if (KK_VI_IS_SI(varint))
+    return varint;
+
+  kk_bi_t bigint = kkbigint_shrink(kkvarint_as_kkbigint(varint));
+  if (KK_BI_GET_FULLP_LENGTH(bigint) == 1){
+      kk_bi_fullp_arr_t fullp_arr = KK_BI_GET_FULLP_ARRAY(bigint);
+      kk_si_t first = (kk_si_t)fullp_arr[0];
+      if (KK_SI_IS_VALID(first))
+        return kksmallint_as_kkvarint(first);
+  }
+    
+  return kkbigint_as_kkvarint(bigint);
+}
+
 // Base Bigint functions
 
 kk_bi_t create_kkbigint(kk_si_t value)
@@ -62,7 +78,7 @@ kk_bi_length_t kkbigint_get_used_parts(kk_bi_t bigint)
   return i + 1;
 }
 
-kk_bi_t kkbigint_shrink_to_fit(kk_bi_t bigint)
+kk_bi_t kkbigint_shrink(kk_bi_t bigint)
 {
   kk_bi_length_t used_parts = kkbigint_get_used_parts(bigint);
   if (used_parts == KK_BI_GET_FULLP_LENGTH(bigint))
@@ -71,6 +87,7 @@ kk_bi_t kkbigint_shrink_to_fit(kk_bi_t bigint)
   // No need to check for alignement, as we are shrinking
   // This SHOULD always keep the same address
   kk_bi_t newbigint = realloc(bigint, KK_BI_CALC_FULL_SIZE(used_parts));
+  *((kk_bi_length_t *)newbigint) = used_parts;
 
   // TODO: Remove eventually
   if (newbigint != bigint)

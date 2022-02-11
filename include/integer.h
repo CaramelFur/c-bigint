@@ -13,6 +13,8 @@
 #define KK_INT_TEST_ON_CAST
 // #define KK_INT_CONVERT_ON_CAST
 
+#define KK_INT_AUTO_SHRINK
+
 // Info ------------------------------------------------------
 
 /*
@@ -185,8 +187,8 @@ typedef kk_full_int_t kk_si_t;
 // Smallint
 #define KK_SI_HAS_OVERFLOWED(varint) (((kk_vi_t)(varint) + KK_VI_LARGE_BIT) & KK_VI_SIGN_BIT)
 #define KK_SI_NOT_OVERFLOWED(varint) (!KK_SI_HAS_OVERFLOWED(varint))
-#define KK_SI_IS_VALID(smallint) KK_SI_NOT_OVERFLOWED(smallint)
-#define KK_SI_NOT_VALID(smallint) KK_SI_HAS_OVERFLOWED(smallint)
+#define KK_SI_IS_VALID(smallint) ((smallint >= KK_SI_MIN) && (smallint <= KK_SI_MAX))
+#define KK_SI_NOT_VALID(smallint) (!KK_SI_IS_VALID(smallint))
 
 // Inline Functions ------------------------------------------
 
@@ -196,6 +198,7 @@ typedef kk_full_int_t kk_si_t;
 
 kk_vi_t create_kkvarint(kk_si_t value);
 kk_vi_t kkvarint_clone(kk_vi_t value);
+kk_vi_t kkvarint_shrink(kk_vi_t varint);
 
 kk_bi_t create_kkbigint(kk_si_t value);
 kk_bi_t create_kkbigint_parts(kk_bi_length_t parts);
@@ -205,7 +208,7 @@ char *create_hexstr_from_borrowed_kkvarint(kk_vi_t varint);
 char *create_decstr_from_borrowed_kkvarint(kk_vi_t varint);
 
 kk_bi_length_t kkbigint_get_used_parts(kk_bi_t bigint);
-kk_bi_t kkbigint_shrink_to_fit(kk_bi_t bigint);
+kk_bi_t kkbigint_shrink(kk_bi_t bigint);
 kk_bi_t kkbigint_resize(kk_bi_t bigint, kk_bi_length_t new_parts);
 kk_bi_t kkbigint_clone(kk_bi_t bigint);
 
