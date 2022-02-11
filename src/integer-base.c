@@ -74,9 +74,15 @@ kk_bi_length_t kkbigint_get_used_parts(kk_bi_t bigint)
   kk_bi_length_t i = KK_BI_GET_FULLP_LENGTH(bigint);
   kk_bi_fullp_arr_t data = KK_BI_GET_FULLP_ARRAY(bigint);
 
+  if (i == 1)
+    return 1;
+
   do
     i--;
   while (i > 0 && (data[i] == 0 || data[i] == KK_BI_FULLPART_MAX));
+
+  if ((data[i + 1] ^ data[i]) >> (KK_BI_FULLPART_BITS - 1))
+    return i + 2;
 
   return i + 1;
 }

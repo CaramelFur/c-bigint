@@ -186,8 +186,6 @@ void test7()
   print_kkvarint_internal(neg);
 
   kk_vi_t new = add_borrowed_kkvarint_to_borrowed_kkvarint(pos, neg); // 0
-  printf("pog\n");
-  fflush(stdout);
   print_kkvarint_internal(new);
   char *ok = create_hexstr_from_borrowed_kkvarint(new);
   printf("%s\n", ok);
@@ -195,7 +193,7 @@ void test7()
   printf("AAAA 2\n");
 
   uint64_t aa = 0x3fffffffffffffff;
-  uint64_t bb = 0x7fffffffffffffff;
+  uint64_t bb = 0x3fffffffffffffff;
   printf("Trying: %ld + %ld = %ld\n", aa, bb, aa + bb);
 
   kk_vi_t a = kkbigint_as_kkvarint(create_kkbigint(aa));
@@ -212,7 +210,7 @@ void test7()
 
 void test8(){
   kk_vi_t one = create_kkvarint_from_borrowed_hexstr(create_string("ffffffffffffffffffffffffffffffff"));
-  kk_vi_t two = kkbigint_as_kkvarint(kkbigint_resize(create_kkbigint(1), 1));
+  kk_vi_t two = kkbigint_as_kkvarint(kkbigint_resize(create_kkbigint(1), 2));
   print_kkbigint_internal(kkvarint_as_kkbigint(one));
   print_kkbigint_internal(kkvarint_as_kkbigint(two));
 
@@ -221,10 +219,19 @@ void test8(){
   print_kkbigint_internal(kkvarint_as_kkbigint(new));
 }
 
+void test9() {
+  kk_vi_t test = kkbigint_as_kkvarint(kkbigint_resize(create_kkbigint(1), 3));
+  print_kkbigint_internal(kkvarint_as_kkbigint(test));
+  kk_vi_t test2 = kkbigint_as_kkvarint(kkbigint_shrink(kkvarint_as_kkbigint(test)));
+  print_kkbigint_internal(kkvarint_as_kkbigint(test2));
+
+  
+}
+
 int main()
 {
 
-  test7();
+  test9();
 
   return 0;
 }

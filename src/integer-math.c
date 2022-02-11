@@ -88,8 +88,8 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
 {
   // printf("add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_optionb\n");
 
-  kk_byte smaller_sign = (kk_byte)(data_smaller[smaller_length - 1] >> (KK_BI_BYTEPART_BITS - 1));
-  kk_byte larger_sign = (kk_byte)(data_larger[larger_length - 1] >> (KK_BI_BYTEPART_BITS - 1));
+  kk_byte smaller_sign = (kk_byte)(data_smaller[smaller_length - 1] >> (KK_BI_SMALLPART_BITS - 1));
+  kk_byte larger_sign = (kk_byte)(data_larger[larger_length - 1] >> (KK_BI_SMALLPART_BITS - 1));
 
   kk_bi_smallpart_t signext = (!smaller_sign) + KK_BI_SMALLPART_MAX;
   // smaller_sign
@@ -122,11 +122,11 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
     carry >>= KK_BI_SMALLPART_BITS;
   }
 
-  kk_byte final_sign_inv = !(data_larger[larger_length - 1] >> (KK_BI_BYTEPART_BITS - 1));
+  kk_byte final_sign_inv = !(data_larger[larger_length - 1] >> (KK_BI_SMALLPART_BITS - 1));
 
   // TODO: optimize this
   if (
-      (final_sign_inv & smaller_sign & larger_sign) == 1 ||
+      (final_sign_inv && smaller_sign && larger_sign) == 1 ||
       (final_sign_inv || smaller_sign || larger_sign) == 0)
   {
     kk_bi_length_t new_length = KK_BI_SMALLP_TO_FULLP_LEN(larger_length) + 1;
