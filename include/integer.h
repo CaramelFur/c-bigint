@@ -14,6 +14,7 @@
 // #define KK_INT_CONVERT_ON_CAST
 
 #define KK_INT_AUTO_SHRINK
+#define KK_INT_SHRINK_TO_SMALLINT
 
 // Info ------------------------------------------------------
 
@@ -215,6 +216,7 @@ kk_bi_t kkbigint_clone(kk_bi_t bigint);
 // Util functions --------------------------------------------
 
 void print_kkbigint_internal(kk_bi_t bigint);
+void print_kkvarint_internal(kk_vi_t varint);
 
 // Math ------------------------------------------------------
 

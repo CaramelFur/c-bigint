@@ -24,14 +24,17 @@ kk_vi_t kkvarint_shrink(kk_vi_t varint)
   if (KK_VI_IS_SI(varint))
     return varint;
 
+#ifdef KK_INT_SHRINK_TO_SMALLINT
   kk_bi_t bigint = kkbigint_shrink(kkvarint_as_kkbigint(varint));
-  if (KK_BI_GET_FULLP_LENGTH(bigint) == 1){
-      kk_bi_fullp_arr_t fullp_arr = KK_BI_GET_FULLP_ARRAY(bigint);
-      kk_si_t first = (kk_si_t)fullp_arr[0];
-      if (KK_SI_IS_VALID(first))
-        return kksmallint_as_kkvarint(first);
+  if (KK_BI_GET_FULLP_LENGTH(bigint) == 1)
+  {
+    kk_bi_fullp_arr_t fullp_arr = KK_BI_GET_FULLP_ARRAY(bigint);
+    kk_si_t first = (kk_si_t)fullp_arr[0];
+    if (KK_SI_IS_VALID(first))
+      return kksmallint_as_kkvarint(first);
   }
-    
+#endif
+
   return kkbigint_as_kkvarint(bigint);
 }
 

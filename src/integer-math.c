@@ -139,7 +139,7 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
 #ifdef KK_INT_AUTO_SHRINK
   // If we haven't carried, we can check if we can shrink
   else
-    return kkvarint_shrink(kkbigint_as_kkvarint(bigint_larger));
+    bigint_larger = kkbigint_shrink(bigint_larger);
 #endif
 
   return kkbigint_as_kkvarint(bigint_larger);
