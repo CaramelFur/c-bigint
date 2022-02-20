@@ -91,10 +91,11 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
   kk_byte smaller_sign = (kk_byte)(data_smaller[smaller_length - 1] >> (KK_BI_SMALLPART_BITS - 1));
   kk_byte larger_sign = (kk_byte)(data_larger[larger_length - 1] >> (KK_BI_SMALLPART_BITS - 1));
 
-  kk_bi_smallpart_t signext = (!smaller_sign) + KK_BI_SMALLPART_MAX;
-  // smaller_sign
-  //     ? KK_BI_SMALLPART_MAX
-  //     : 0;
+  //printf("signs %d %d\n", smaller_sign, larger_sign);
+
+  kk_bi_fullpart_t signext = (!smaller_sign) + KK_BI_FULLPART_MAX;
+
+  //printf("Signext %lx\n", signext);
 
   kk_bi_fullpart_t carry = 0;
   kk_bi_smallpart_t a = 0;
@@ -116,7 +117,7 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
   for (; i < larger_length; i++)
   {
     b = data_larger[i];
-    carry = (kk_bi_fullpart_t)signext + (kk_bi_fullpart_t)b + carry;
+    carry = signext + (kk_bi_fullpart_t)b + carry;
     data_larger[i] = (kk_bi_smallpart_t)carry;
 
     carry >>= KK_BI_SMALLPART_BITS;
@@ -129,12 +130,15 @@ static inline kk_vi_t add_borrowed_larger_kkbigint_to_borrowed_smaller_kkbigint_
       (final_sign_inv && smaller_sign && larger_sign) == 1 ||
       (final_sign_inv || smaller_sign || larger_sign) == 0)
   {
+
     kk_bi_length_t new_length = KK_BI_SMALLP_TO_FULLP_LEN(larger_length) + 1;
 
     bigint_larger = kkbigint_resize(bigint_larger, new_length);
     kk_bi_fullp_arr_t data_new = KK_BI_GET_FULLP_ARRAY(bigint_larger);
 
-    data_new[new_length - 1] = signext + carry;
+    data_new[new_length - 1] = signext | carry;
+
+    //printf("Resize data %lx\n", data_new[new_length - 1]);
   }
 #ifdef KK_INT_AUTO_SHRINK
   // If we haven't carried, we can check if we can shrink

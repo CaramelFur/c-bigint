@@ -55,6 +55,7 @@ kk_bi_t create_kkbigint_parts(kk_bi_length_t parts)
   kk_bi_length_t bytes = KK_BI_CALC_FULL_SIZE(parts);
 
   kk_bi_t bigint = aligned_alloc(_KK_SI_BITS_ALIGNMENT, bytes);
+  memset(bigint, 0, bytes);
   *((kk_bi_length_t *)bigint) = parts;
 
   return bigint;
@@ -72,15 +73,23 @@ kk_bi_t create_kkbigint_bits(kk_bi_length_t bits)
 kk_bi_length_t kkbigint_get_used_parts(kk_bi_t bigint)
 {
   kk_bi_length_t i = KK_BI_GET_FULLP_LENGTH(bigint);
+  kk_bi_length_t i_max = i;
   kk_bi_fullp_arr_t data = KK_BI_GET_FULLP_ARRAY(bigint);
 
   if (i == 1)
     return 1;
 
+  // Keep checking if the most siginifact bits are full zeros or full ones
   do
     i--;
   while (i > 0 && (data[i] == 0 || data[i] == KK_BI_FULLPART_MAX));
 
+  // If all parts are used, just return
+  if (i + 1 == i_max)
+    return i + 1;
+
+  // Otherwise, check to see if the non-used parts affect the sign
+  // Keep one if it does
   if ((data[i + 1] ^ data[i]) >> (KK_BI_FULLPART_BITS - 1))
     return i + 2;
 

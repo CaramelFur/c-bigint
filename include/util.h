@@ -45,12 +45,13 @@ static inline size_t decimals_for_n_bits(size_t amount_bits)
   // We dont want to use floats so we'll divide instead
   // So: `amount_bits / (1 / 0.301)`
   //     `amount_bits / 3.32`
-  // We still need floats, so we'll round down, 
+  // We still need floats, so we'll round down,
   // this will give us too many digits, but it is close enough
   return amount_bits / 3;
 }
 
-static inline size_t bcds_for_n_bits(size_t amount_bits) {
+static inline size_t bcds_for_n_bits(size_t amount_bits)
+{
   return CEIL_DIV(amount_bits + 4 * CEIL_DIV(amount_bits, 3), 8);
 }
 
